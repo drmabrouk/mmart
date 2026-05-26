@@ -103,13 +103,35 @@ class Control_System {
 	public function register_admin_menu() {
 		add_menu_page(
 			__( 'Matjar Products', 'control' ),
-			__( 'المنتجات', 'control' ),
+			__( 'المتجر', 'control' ),
 			'manage_options',
-			'matjar-products',
+			'matjar-admin',
 			array( $this, 'render_admin_products' ),
 			'dashicons-cart',
 			25
 		);
+
+		add_submenu_page(
+			'matjar-admin',
+			__( 'Products', 'control' ),
+			__( 'المنتجات', 'control' ),
+			'manage_options',
+			'matjar-admin',
+			array( $this, 'render_admin_products' )
+		);
+
+		add_submenu_page(
+			'matjar-admin',
+			__( 'Shipping Settings', 'control' ),
+			__( 'إعدادات الشحن', 'control' ),
+			'manage_options',
+			'matjar-shipping',
+			array( $this, 'render_admin_shipping' )
+		);
+	}
+
+	public function render_admin_shipping() {
+		include CONTROL_PATH . 'templates/admin-shipping.php';
 	}
 
 	public function render_admin_products() {

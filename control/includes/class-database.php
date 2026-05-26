@@ -160,10 +160,16 @@ class Control_Database {
 			id bigint(20) NOT NULL AUTO_INCREMENT,
 			user_id varchar(100) NOT NULL,
 			items longtext NOT NULL,
+			subtotal decimal(10,2) NOT NULL,
+			shipping_cost decimal(10,2) NOT NULL,
 			total decimal(10,2) NOT NULL,
 			status varchar(50) DEFAULT 'pending',
 			payment_status varchar(50) DEFAULT 'unpaid',
+			governorate varchar(100),
+			city varchar(100),
 			shipping_address text,
+			gps_coords varchar(255),
+			order_notes text,
 			created_at datetime DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY  (id)
 		) $charset_collate;
@@ -177,6 +183,16 @@ class Control_Database {
 			price decimal(10,2) NOT NULL,
 			quantity int(11) NOT NULL,
 			PRIMARY KEY  (id)
+		) $charset_collate;
+
+		$table_shipping = $wpdb->prefix . 'matjar_shipping_rules';
+		CREATE TABLE $table_shipping (
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+			governorate varchar(100) NOT NULL,
+			tier varchar(50) NOT NULL,
+			base_rate decimal(10,2) NOT NULL,
+			PRIMARY KEY  (id),
+			UNIQUE KEY governorate (governorate)
 		) $charset_collate;";
 
 		if ( file_exists( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
@@ -347,6 +363,27 @@ class Control_Database {
 			}
 		}
 
+		// Seed Shipping Rules (Egypt)
+		$shipping_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}matjar_shipping_rules");
+		if ($shipping_count == 0) {
+			$rules = array(
+				array('governorate' => 'القاهرة', 'tier' => 'central', 'base_rate' => 30),
+				array('governorate' => 'الجيزة', 'tier' => 'central', 'base_rate' => 30),
+				array('governorate' => 'الإسكندرية', 'tier' => 'delta', 'base_rate' => 50),
+				array('governorate' => 'القليوبية', 'tier' => 'delta', 'base_rate' => 50),
+				array('governorate' => 'الدقهلية', 'tier' => 'delta', 'base_rate' => 50),
+				array('governorate' => 'سوهاج', 'tier' => 'upper', 'base_rate' => 75),
+				array('governorate' => 'المنيا', 'tier' => 'upper', 'base_rate' => 75),
+				array('governorate' => 'أسيوط', 'tier' => 'upper', 'base_rate' => 85),
+				array('governorate' => 'قنا', 'tier' => 'upper', 'base_rate' => 95),
+				array('governorate' => 'الأقصر', 'tier' => 'upper', 'base_rate' => 110),
+				array('governorate' => 'أسوان', 'tier' => 'upper', 'base_rate' => 125),
+			);
+			foreach ($rules as $r) {
+				$wpdb->insert("{$wpdb->prefix}matjar_shipping_rules", $r);
+			}
+		}
+
 		// Seed Email Templates
 		$templates = array(
 			'welcome_email' => array(
@@ -421,6 +458,11 @@ class Control_Database {
 				'title'   => 'تفاصيل المنتج',
 				'content' => '[matjar_product]',
 				'option'  => 'matjar_product_page_id'
+			),
+			'dashboard' => array(
+				'title'   => 'لوحة التحكم',
+				'content' => '[matjar_dashboard]',
+				'option'  => 'matjar_dashboard_page_id'
 			),
 		);
 

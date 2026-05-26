@@ -21,7 +21,8 @@ class Control_Ajax {
 			'verify_recovery_otp', 'reset_password_recovery',
 			'get_email_templates', 'preview_email', 'send_manual_email',
 			'save_product', 'delete_product', 'export_products', 'import_products',
-			'place_order', 'save_category', 'delete_category'
+			'place_order', 'save_category', 'delete_category',
+			'save_shipping_rule', 'calculate_shipping'
 		);
 
 		foreach ( $private_actions as $action ) {
@@ -1347,6 +1348,35 @@ class Control_Ajax {
 		$this->send_success( sprintf( __('تم استيراد %d منتج بنجاح.', 'control'), $count ) );
 	}
 
+	public function save_shipping_rule() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+		if ( ! Control_Auth::is_admin() ) $this->send_error( 'Unauthorized', 403 );
+
+		global $wpdb;
+		$id = intval( $_POST['id'] );
+		$rate = floatval( $_POST['base_rate'] );
+
+		$wpdb->update( "{$wpdb->prefix}matjar_shipping_rules", array( 'base_rate' => $rate ), array( 'id' => $id ) );
+		$this->send_success();
+	}
+
+	public function calculate_shipping() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+
+		$governorate = sanitize_text_field( $_POST['governorate'] ?? '' );
+		if ( empty($governorate) ) $this->send_error( 'Missing governorate' );
+
+		global $wpdb;
+		$rule = $wpdb->get_row( $wpdb->prepare( "SELECT base_rate FROM {$wpdb->prefix}matjar_shipping_rules WHERE governorate = %s", $governorate ) );
+
+		if ( $rule ) {
+			$this->send_success( array( 'rate' => floatval($rule->base_rate) ) );
+		} else {
+			// Fallback rate for unknown Egyptian locations
+			$this->send_success( array( 'rate' => 50.00 ) );
+		}
+	}
+
 	public function place_order() {
 		check_ajax_referer( 'control_nonce', 'nonce' );
 		if ( ! Control_Auth::is_logged_in() ) $this->send_error( 'Unauthorized', 403 );
@@ -1377,12 +1407,21 @@ class Control_Ajax {
 
 		if ( empty($verified_items) ) $this->send_error( 'Invalid products in cart' );
 
+		$shipping_cost = floatval( $_POST['shipping_cost'] ?? 0 );
+		$grand_total = $total + $shipping_cost;
+
 		$wpdb->insert( $wpdb->prefix . 'matjar_orders', array(
 			'user_id' => $current_user->id,
 			'items'   => json_encode($verified_items),
-			'total'   => $total,
+			'subtotal' => $total,
+			'shipping_cost' => $shipping_cost,
+			'total'   => $grand_total,
 			'status'  => 'pending',
-			'shipping_address' => sanitize_textarea_field( $_POST['shipping_address'] ?? '' )
+			'governorate' => sanitize_text_field( $_POST['governorate'] ?? '' ),
+			'city'        => sanitize_text_field( $_POST['city'] ?? '' ),
+			'shipping_address' => sanitize_textarea_field( $_POST['shipping_address'] ?? '' ),
+			'gps_coords'       => sanitize_text_field( $_POST['gps_coords'] ?? '' ),
+			'order_notes'      => sanitize_textarea_field( $_POST['order_notes'] ?? '' ),
 		) );
 
 		$order_id = $wpdb->insert_id;

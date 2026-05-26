@@ -1224,18 +1224,78 @@ jQuery(document).ready(function($) {
         updateCartUI();
     });
 
+    $(document).on('change', '#checkout-governorate', function() {
+        const gov = $(this).val();
+        if (!gov) return;
+
+        $.post(control_ajax.ajax_url, {
+            action: 'control_calculate_shipping',
+            governorate: gov,
+            nonce: control_ajax.nonce
+        }, function(res) {
+            if (res.success) {
+                const shipping = res.data.rate;
+                $('#cart-shipping').text(shipping.toFixed(2) + ' EGP');
+                const subtotal = parseFloat($('#cart-subtotal').text());
+                $('#cart-total').text((subtotal + shipping).toFixed(2) + ' EGP');
+            }
+        });
+    });
+
+    $(document).on('click', '#get-gps-location', function() {
+        if (navigator.geolocation) {
+            $(this).text('جاري تحديد الموقع...');
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
+                $('#checkout-gps').val(coords);
+                $(this).html('<span class="dashicons dashicons-yes"></span> تم تحديد الموقع بنجاح');
+            });
+        }
+    });
+
+    $(document).on('click', '.view-order-details', function() {
+        const order = $(this).data('order');
+        $('#order-modal-id').text('طلب رقم #' + order.id);
+        $('#order-modal-date').text(order.created_at);
+        $('#order-modal-status').text(order.status).removeClass().addClass('control-status-indicator ' + (order.status === 'pending' ? 'indicator-warning' : 'indicator-success'));
+        $('#order-modal-client').text(order.user_id);
+        $('#order-modal-location').text(`${order.governorate}، ${order.city}`);
+        $('#order-modal-address').text(order.shipping_address);
+        $('#order-modal-gps').html(order.gps_coords ? `<a href="https://www.google.com/maps?q=${order.gps_coords}" target="_blank" style="color:var(--control-accent);">فتح الموقع على الخريطة</a>` : '');
+        $('#order-modal-notes').text(order.order_notes || 'لا توجد ملاحظات');
+
+        let itemsHtml = '';
+        JSON.parse(order.items).forEach(item => {
+            itemsHtml += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>${item.name}</span><strong>${item.price} EGP</strong></div>`;
+        });
+        itemsHtml += `<div style="padding:12px; background:#f8fafc; display:flex; justify-content:space-between;"><span>الشحن</span><strong>${order.shipping_cost} EGP</strong></div>`;
+
+        $('#order-modal-items').html(itemsHtml);
+        $('#order-modal-total').text(order.total + ' EGP');
+        $('#matjar-order-details-modal').css('display', 'flex');
+    });
+
+    $(document).on('click', '.matjar-close-order-modal', function() {
+        $('#matjar-order-details-modal').hide();
+    });
+
     $(document).on('click', '#confirm-order-btn', function() {
         const $btn = $(this);
         $btn.prop('disabled', true).text('جاري المعالجة...');
 
         const shippingAddress = $('#checkout-address').val();
         const orderNotes = $('#checkout-notes').val();
+        const shippingCost = parseFloat($('#cart-shipping').text());
 
         $.post(control_ajax.ajax_url, {
             action: 'control_place_order',
             cart: matjarCart,
+            governorate: $('#checkout-governorate').val(),
+            city: $('#checkout-city').val(),
             shipping_address: shippingAddress,
+            gps_coords: $('#checkout-gps').val(),
             order_notes: orderNotes,
+            shipping_cost: shippingCost,
             nonce: control_ajax.nonce
         }, function(res) {
             if (res.success) {
@@ -1372,6 +1432,34 @@ jQuery(document).ready(function($) {
         frame.on('select', function() {
             const attachment = frame.state().get('selection').first().toJSON();
             $('#product-image-url').val(attachment.url);
+        });
+    });
+
+    // --- Matjar Shipping Management (Admin) ---
+    $(document).on('click', '.edit-shipping-rule', function() {
+        const rule = $(this).data('rule');
+        $('#shipping-rule-id').val(rule.id);
+        $('#shipping-gov-name').val(rule.governorate);
+        $('#shipping-base-rate').val(rule.base_rate);
+        $('#matjar-shipping-modal').css('display', 'flex');
+    });
+
+    $(document).on('click', '.matjar-close-shipping-modal', function() {
+        $('#matjar-shipping-modal').hide();
+    });
+
+    $(document).on('submit', '#matjar-shipping-form', function(e) {
+        e.preventDefault();
+        const $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).text('جاري الحفظ...');
+
+        $.post(control_ajax.ajax_url, $(this).serialize() + '&action=control_save_shipping_rule&nonce=' + control_ajax.nonce, function(res) {
+            if (res.success) {
+                location.reload();
+            } else {
+                alert('حدث خطأ');
+                $btn.prop('disabled', false).text('حفظ التغييرات');
+            }
         });
     });
 });
