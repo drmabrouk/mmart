@@ -18,6 +18,7 @@ class Control_Database {
 		$table_policies     = $wpdb->prefix . 'control_policies';
 		$table_otps         = $wpdb->prefix . 'control_otps';
 		$table_reset_tokens = $wpdb->prefix . 'control_reset_tokens';
+		$table_products     = $wpdb->prefix . 'matjar_products';
 
 		$sql = "CREATE TABLE $table_staff (
 			id mediumint(9) NOT NULL AUTO_INCREMENT,
@@ -129,6 +130,29 @@ class Control_Database {
 			is_used tinyint(1) DEFAULT 0,
 			PRIMARY KEY  (id),
 			KEY token (token)
+		) $charset_collate;
+
+		CREATE TABLE $table_products (
+			id bigint(20) NOT NULL AUTO_INCREMENT,
+			name varchar(255) NOT NULL,
+			description text,
+			price decimal(10,2) NOT NULL,
+			image_url varchar(255),
+			stock int(11) DEFAULT 0,
+			category varchar(100),
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id)
+		) $charset_collate;
+
+		$table_orders = $wpdb->prefix . 'matjar_orders';
+		CREATE TABLE $table_orders (
+			id bigint(20) NOT NULL AUTO_INCREMENT,
+			user_id varchar(100) NOT NULL,
+			items longtext NOT NULL,
+			total decimal(10,2) NOT NULL,
+			status varchar(50) DEFAULT 'pending',
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id)
 		) $charset_collate;";
 
 		if ( file_exists( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {

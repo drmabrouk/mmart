@@ -105,17 +105,19 @@ class Control_Auth {
 	}
 
 	/**
-	 * Restrict WP Dashboard access.
+	 * Restrict WP Dashboard access to Administrators only.
 	 */
 	public static function restrict_admin_access() {
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return;
 		}
 
-		// If not System Admin and not Site Admin (administrator), redirect away
-		if ( is_admin() && ! current_user_can( 'manage_options' ) ) {
-			wp_redirect( home_url() );
-			exit;
+		if ( is_admin() ) {
+			$user = self::current_user();
+			if ( ! $user || $user->role !== 'admin' ) {
+				wp_redirect( home_url() );
+				exit;
+			}
 		}
 	}
 

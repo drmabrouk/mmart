@@ -72,6 +72,7 @@ class Control_System {
 	private function init_hooks() {
 		register_activation_hook( __FILE__, array( 'Control_Database', 'create_tables' ) );
 		register_activation_hook( __FILE__, array( 'Control_Database', 'create_dashboard_page' ) );
+		add_action( 'admin_menu', array( $this, 'register_admin_menu' ) );
 		add_action( 'init', array( 'Control_Auth', 'init' ) );
 		add_action( 'init', array( 'Control_Notifications', 'init' ) );
 		add_action( 'init', array( 'Control_PWA', 'init' ) );
@@ -97,6 +98,22 @@ class Control_System {
 			header( "Pragma: no-cache" );
 			header( "Expires: Wed, 11 Jan 1984 05:00:00 GMT" );
 		}
+	}
+
+	public function register_admin_menu() {
+		add_menu_page(
+			__( 'Matjar Products', 'control' ),
+			__( 'المنتجات', 'control' ),
+			'manage_options',
+			'matjar-products',
+			array( $this, 'render_admin_products' ),
+			'dashicons-cart',
+			25
+		);
+	}
+
+	public function render_admin_products() {
+		include CONTROL_PATH . 'templates/admin-products.php';
 	}
 
 	public function enqueue_assets() {

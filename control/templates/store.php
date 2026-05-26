@@ -12,27 +12,27 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     <div class="matjar-product-grid">
         <?php
-        // Dummy products for initial setup
-        $products = array(
-            array('id' => 1, 'name' => 'Product 1', 'price' => '100 SAR', 'img' => 'https://via.placeholder.com/300'),
-            array('id' => 2, 'name' => 'Product 2', 'price' => '150 SAR', 'img' => 'https://via.placeholder.com/300'),
-            array('id' => 3, 'name' => 'Product 3', 'price' => '200 SAR', 'img' => 'https://via.placeholder.com/300'),
-            array('id' => 4, 'name' => 'Product 4', 'price' => '250 SAR', 'img' => 'https://via.placeholder.com/300'),
-            array('id' => 5, 'name' => 'Product 5', 'price' => '300 SAR', 'img' => 'https://via.placeholder.com/300'),
-        );
+        global $wpdb;
+        $db_products = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}matjar_products ORDER BY id DESC" );
 
-        foreach ($products as $product): ?>
-            <div class="matjar-product-card">
-                <img src="<?php echo $product['img']; ?>" alt="<?php echo $product['name']; ?>" class="product-image">
-                <div class="product-info">
-                    <h4 style="margin: 0 0 10px 0; font-weight: 700;"><?php echo $product['name']; ?></h4>
-                    <p style="color: var(--control-accent); font-weight: 800; margin-bottom: 15px;"><?php echo $product['price']; ?></p>
-                    <button class="control-btn add-to-cart-btn" data-id="<?php echo $product['id']; ?>" style="width: 100%;">
-                        <span class="dashicons dashicons-plus" style="margin-left: 5px;"></span>
-                        <?php _e('أضف للسلة', 'control'); ?>
-                    </button>
+        if ( $db_products ) :
+            foreach ($db_products as $product): ?>
+                <div class="matjar-product-card">
+                    <img src="<?php echo esc_url($product->image_url ?: 'https://via.placeholder.com/300'); ?>" alt="<?php echo esc_attr($product->name); ?>" class="product-image">
+                    <div class="product-info">
+                        <h4><?php echo esc_html($product->name); ?></h4>
+                        <div class="price-tag"><?php echo esc_html($product->price); ?> SAR</div>
+                        <button class="add-to-cart-btn" data-id="<?php echo esc_attr($product->id); ?>">
+                            <span class="dashicons dashicons-plus" style="margin-left: 5px; font-size: 14px;"></span>
+                            <?php _e('أضف للسلة', 'control'); ?>
+                        </button>
+                    </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
+            <?php endforeach;
+        else : ?>
+            <p style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--control-muted);">
+                <?php _e('لا توجد منتجات متوفرة حالياً.', 'control'); ?>
+            </p>
+        <?php endif; ?>
     </div>
 </div>

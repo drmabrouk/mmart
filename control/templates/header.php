@@ -117,9 +117,10 @@
             <span class="dashicons dashicons-store"></span>
             <small><?php _e('الرئيسية', 'control'); ?></small>
         </a>
-        <a href="<?php echo get_permalink(get_option('matjar_cart_page_id')); ?>" class="nav-item">
+        <a href="<?php echo get_permalink(get_option('matjar_cart_page_id')); ?>" class="nav-item" style="position: relative;">
             <span class="dashicons dashicons-cart"></span>
             <small><?php _e('السلة', 'control'); ?></small>
+            <span id="matjar-cart-count" style="position: absolute; top: -5px; right: -5px; background: var(--control-accent); color: #000; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid #000;">0</span>
         </a>
         <a href="<?php echo get_permalink(get_option('matjar_orders_page_id')); ?>" class="nav-item">
             <span class="dashicons dashicons-list-view"></span>
