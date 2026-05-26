@@ -29,6 +29,49 @@ jQuery(document).ready(function($) {
         });
     });
 
+    $(document).on('click', '#add-category-btn', function() {
+        $('#category-modal-title').text('إضافة تصنيف');
+        $('#matjar-category-form')[0].reset();
+        $('#category-id').val('0');
+        $('#matjar-category-modal').css('display', 'flex');
+    });
+
+    $(document).on('click', '.edit-category', function() {
+        const cat = $(this).data('cat');
+        $('#category-modal-title').text('تعديل التصنيف');
+        $('#category-id').val(cat.id);
+        $('#category-name').val(cat.name);
+        $('#category-parent-id').val(cat.parent_id);
+        $('#matjar-category-modal').css('display', 'flex');
+    });
+
+    $(document).on('click', '.matjar-close-cat-modal', function() {
+        $('#matjar-category-modal').hide();
+    });
+
+    $(document).on('submit', '#matjar-category-form', function(e) {
+        e.preventDefault();
+        const $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).text('جاري الحفظ...');
+
+        $.post(control_ajax.ajax_url, $(this).serialize() + '&action=control_save_category&nonce=' + control_ajax.nonce, function(res) {
+            if (res.success) {
+                location.reload();
+            } else {
+                alert('حدث خطأ');
+                $btn.prop('disabled', false).text('حفظ');
+            }
+        });
+    });
+
+    $(document).on('click', '.delete-category', function() {
+        if (!confirm('هل أنت متأكد من حذف هذا التصنيف؟')) return;
+        const id = $(this).data('id');
+        $.post(control_ajax.ajax_url, { action: 'control_delete_category', id: id, nonce: control_ajax.nonce }, function() {
+            location.reload();
+        });
+    });
+
     $(document).on('click', '#control-restore-trigger', function() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -1103,10 +1146,10 @@ jQuery(document).ready(function($) {
         }
 
         let html = '<div class="cart-items-list" style="display:flex; flex-direction:column; gap:15px;">';
-        let total = 0;
+        let subtotal = 0;
         matjarCart.forEach((item, index) => {
             const price = parseFloat(item.price);
-            total += price;
+            subtotal += price;
             html += `
                 <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; background:var(--control-bg); padding:15px; border-radius:12px;">
                     <div style="display:flex; gap:15px; align-items:center;">
@@ -1124,9 +1167,36 @@ jQuery(document).ready(function($) {
         });
         html += '</div>';
         $cartContainer.html(html);
+
+        const shipping = 50.00;
+        const total = subtotal + shipping;
+
+        $('#cart-subtotal').text(subtotal.toFixed(2) + ' EGP');
         $('#cart-total').text(total.toFixed(2) + ' EGP');
-        $('#confirm-order-btn').prop('disabled', false);
+        $('#cart-next-to-shipping').prop('disabled', false);
     }
+
+    $(document).on('click', '#cart-next-to-shipping', function() {
+        $('#checkout-step-1').hide();
+        $('#checkout-step-2').fadeIn(200);
+    });
+
+    $(document).on('click', '#cart-next-to-confirm', function() {
+        const address = $('#checkout-address').val();
+        if (!address) {
+            alert('يرجى إدخال عنوان التوصيل');
+            return;
+        }
+        $('#confirm-address-display').text(address);
+        $('#checkout-step-2').hide();
+        $('#checkout-step-3').fadeIn(200);
+    });
+
+    $(document).on('click', '.checkout-prev', function() {
+        const $current = $(this).closest('.checkout-step');
+        $current.hide();
+        $current.prev('.checkout-step').fadeIn(200);
+    });
 
     $(document).on('click', '.add-to-cart-btn', function() {
         const $card = $(this).closest('.matjar-product-card');
@@ -1158,7 +1228,16 @@ jQuery(document).ready(function($) {
         const $btn = $(this);
         $btn.prop('disabled', true).text('جاري المعالجة...');
 
-        $.post(control_ajax.ajax_url, { action: 'control_place_order', cart: matjarCart, nonce: control_ajax.nonce }, function(res) {
+        const shippingAddress = $('#checkout-address').val();
+        const orderNotes = $('#checkout-notes').val();
+
+        $.post(control_ajax.ajax_url, {
+            action: 'control_place_order',
+            cart: matjarCart,
+            shipping_address: shippingAddress,
+            order_notes: orderNotes,
+            nonce: control_ajax.nonce
+        }, function(res) {
             if (res.success) {
                 alert(res.data);
                 matjarCart = [];
@@ -1223,7 +1302,7 @@ jQuery(document).ready(function($) {
         $('#product-price').val(product.price);
         $('#product-stock').val(product.stock);
         $('#product-image-url').val(product.image_url);
-        $('#product-category').val(product.category);
+        $('#product-category-id').val(product.category_id);
         $('#matjar-product-modal').css('display', 'flex');
     });
 

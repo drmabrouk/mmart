@@ -65,10 +65,19 @@ class Control_Shortcode {
 				}
 				break;
 			case 'products':
+				include CONTROL_PATH . 'templates/admin-products.php';
+				break;
+			case 'order-reception':
+				include CONTROL_PATH . 'templates/admin-orders.php';
+				break;
+			case 'vendor-analytics':
+				include CONTROL_PATH . 'templates/vendor-analytics.php';
+				break;
+			case 'categories':
 				if ( ! Control_Auth::is_admin() ) {
 					echo $no_access_html;
 				} else {
-					include CONTROL_PATH . 'templates/admin-products.php';
+					include CONTROL_PATH . 'templates/admin-categories.php';
 				}
 				break;
 			default:
