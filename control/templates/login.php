@@ -56,15 +56,10 @@ $sub_text = $auth_settings['auth_subtitle_text']->setting_value ?? __('نظام 
                     <div class="integrated-phone-field">
                         <div class="country-selector">
                             <span class="selected-flag">🇪🇬</span>
-                            <select id="login-country-code" class="country-code-select">
+                            <select id="login-country-code" class="country-code-select" disabled>
                                 <option value="+20" data-flag="🇪🇬">+20</option>
-                                <option value="+971" data-flag="🇦🇪">+971</option>
-                                <option value="+966" data-flag="🇸🇦">+966</option>
-                                <option value="+965" data-flag="🇰🇼">+965</option>
-                                <option value="+974" data-flag="🇶🇦">+974</option>
-                                <option value="+973" data-flag="🇧🇭">+973</option>
-                                <option value="+968" data-flag="🇴🇲">+968</option>
                             </select>
+                            <input type="hidden" name="country_code" value="+20">
                         </div>
                         <input type="tel" name="phone_body" id="login-phone-body" placeholder="<?php _e('رقم الهاتف', 'control'); ?>" required>
                         <input type="hidden" name="phone" id="login-phone-full">
@@ -110,14 +105,8 @@ $sub_text = $auth_settings['auth_subtitle_text']->setting_value ?? __('نظام 
                         <div class="integrated-phone-field">
                             <div class="country-selector">
                                 <span class="selected-flag">🇪🇬</span>
-                                <select id="forgot-country-code" class="country-code-select">
+                                <select id="forgot-country-code" class="country-code-select" disabled>
                                     <option value="+20" data-flag="🇪🇬">+20</option>
-                                    <option value="+971" data-flag="🇦🇪">+971</option>
-                                    <option value="+966" data-flag="🇸🇦">+966</option>
-                                    <option value="+965" data-flag="🇰🇼">+965</option>
-                                    <option value="+974" data-flag="🇶🇦">+974</option>
-                                    <option value="+973" data-flag="🇧🇭">+973</option>
-                                    <option value="+968" data-flag="🇴🇲">+968</option>
                                 </select>
                             </div>
                             <input type="tel" name="phone_body" id="forgot-phone-body" placeholder="<?php _e('رقم الهاتف', 'control'); ?>" required>
@@ -236,14 +225,8 @@ $sub_text = $auth_settings['auth_subtitle_text']->setting_value ?? __('نظام 
                                     <div class="integrated-phone-field">
                                         <div class="country-selector">
                                             <span class="selected-flag">🇪🇬</span>
-                                            <select id="reg-country-code" class="country-code-select">
+                                            <select id="reg-country-code" class="country-code-select" disabled>
                                                 <option value="+20" data-flag="🇪🇬">+20</option>
-                                                <option value="+971" data-flag="🇦🇪">+971</option>
-                                                <option value="+966" data-flag="🇸🇦">+966</option>
-                                                <option value="+965" data-flag="🇰🇼">+965</option>
-                                                <option value="+974" data-flag="🇶🇦">+974</option>
-                                                <option value="+973" data-flag="🇧🇭">+973</option>
-                                                <option value="+968" data-flag="🇴🇲">+968</option>
                                             </select>
                                         </div>
                                         <input type="tel" name="phone_body" id="reg-phone-body" placeholder="<?php echo $label; ?>" <?php echo $req; ?>>

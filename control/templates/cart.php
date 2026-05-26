@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <div class="cart-footer" style="border-top: 1px solid var(--control-border); padding-top: 20px; display: flex; justify-content: space-between; align-items: center;">
             <div class="total-amount">
                 <span style="font-weight: 600;"><?php _e('الإجمالي:', 'control'); ?></span>
-                <span id="cart-total" style="font-weight: 800; color: var(--control-accent); margin-right: 10px;">0 SAR</span>
+                <span id="cart-total" style="font-weight: 800; color: var(--control-accent); margin-right: 10px;">0 EGP</span>
             </div>
             <button id="confirm-order-btn" class="control-btn" disabled>
                 <?php _e('إتمام الطلب', 'control'); ?>

@@ -16,13 +16,23 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         $db_products = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}matjar_products ORDER BY id DESC" );
 
         if ( $db_products ) :
-            foreach ($db_products as $product): ?>
+            $product_page_url = get_permalink(get_option('matjar_product_page_id'));
+            foreach ($db_products as $product):
+                $view_url = add_query_arg('product_id', $product->id, $product_page_url);
+                ?>
                 <div class="matjar-product-card">
-                    <img src="<?php echo esc_url($product->image_url ?: 'https://via.placeholder.com/300'); ?>" alt="<?php echo esc_attr($product->name); ?>" class="product-image">
-                    <div class="product-info">
-                        <h4><?php echo esc_html($product->name); ?></h4>
-                        <div class="price-tag"><?php echo esc_html($product->price); ?> SAR</div>
-                        <button class="add-to-cart-btn" data-id="<?php echo esc_attr($product->id); ?>">
+                    <a href="<?php echo esc_url($view_url); ?>" style="text-decoration: none; color: inherit; display: block;">
+                        <img src="<?php echo esc_url($product->image_url ?: 'https://via.placeholder.com/300'); ?>" alt="<?php echo esc_attr($product->name); ?>" class="product-image">
+                        <div class="product-info">
+                            <h4><?php echo esc_html($product->name); ?></h4>
+                            <div class="product-snippet" style="font-size: 0.75rem; color: var(--control-muted); margin-bottom: 10px; height: 32px; overflow: hidden;">
+                                <?php echo esc_html(wp_trim_words($product->description, 10)); ?>
+                            </div>
+                            <div class="price-tag"><?php echo esc_html($product->price); ?> <small>EGP</small></div>
+                        </div>
+                    </a>
+                    <div style="padding: 0 20px 20px 20px;">
+                        <button class="add-to-cart-btn" data-id="<?php echo esc_attr($product->id); ?>" style="width: 100%;">
                             <span class="dashicons dashicons-plus" style="margin-left: 5px; font-size: 14px;"></span>
                             <?php _e('أضف للسلة', 'control'); ?>
                         </button>

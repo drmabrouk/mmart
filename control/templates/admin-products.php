@@ -39,7 +39,7 @@ $products = $wpdb->get_results( "SELECT * FROM $table_products ORDER BY id DESC"
                         <img src="<?php echo esc_url($product->image_url ?: 'https://via.placeholder.com/50'); ?>" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
                     </td>
                     <td><strong><?php echo esc_html($product->name); ?></strong></td>
-                    <td><?php echo esc_html($product->price); ?> SAR</td>
+                    <td><?php echo esc_html($product->price); ?> EGP</td>
                     <td><?php echo esc_html($product->stock); ?></td>
                     <td><?php echo esc_html($product->category); ?></td>
                     <td>
