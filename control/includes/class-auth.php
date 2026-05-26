@@ -76,9 +76,13 @@ class Control_Auth {
 			}
 		}
 
-		// Only remove roles that are explicitly identified as "legacy" (e.g. from old brand)
-		// For safety in this transition, we'll avoid the destructive removal loop
-		// unless we have a specific list of branded keys to target.
+		// Explicitly remove legacy roles to enforce the tripartite structure
+		$legacy_roles = array( 'coach', 'therapist', 'nutritionist', 'pe_teacher', 'researcher' );
+		foreach ( $legacy_roles as $legacy_key ) {
+			if ( get_role( $legacy_key ) ) {
+				remove_role( $legacy_key );
+			}
+		}
 	}
 
 	/**
