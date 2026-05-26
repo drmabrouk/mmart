@@ -821,6 +821,105 @@ body, .control-dashboard {
     .mobile-divider { width: 1px; height: 25px; background: #333; }
 }
 
+/* Matjar Floating Nav */
+.matjar-floating-nav {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    width: calc(100% - 40px);
+    max-width: 450px;
+    height: 70px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 10005;
+    padding: 0 10px;
+}
+
+.matjar-floating-nav .nav-item {
+    color: #94a3b8;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: var(--control-transition);
+}
+
+.matjar-floating-nav .nav-item.active,
+.matjar-floating-nav .nav-item:hover {
+    color: var(--control-accent);
+}
+
+.matjar-floating-nav .nav-item .dashicons {
+    font-size: 24px;
+}
+
+.matjar-floating-nav .nav-item small {
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+    .matjar-floating-nav {
+        display: flex !important;
+    }
+}
+
+/* Product Catalog Grid */
+.matjar-product-grid {
+    display: grid;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.matjar-product-card {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid var(--control-border);
+    overflow: hidden;
+    transition: var(--control-transition);
+    box-shadow: var(--control-shadow-sm);
+}
+
+.matjar-product-card:hover {
+    box-shadow: var(--control-shadow);
+    transform: translateY(-5px);
+}
+
+.matjar-product-card .product-image {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+}
+
+.matjar-product-card .product-info {
+    padding: 15px;
+}
+
+/* Responsive Grid */
+@media (min-width: 1200px) {
+    .matjar-product-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+@media (min-width: 1025px) and (max-width: 1199px) {
+    .matjar-product-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .matjar-product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 480px) {
     .control-metrics-grid { grid-template-columns: 1fr; }
     .control-auth-card { padding: 25px; }

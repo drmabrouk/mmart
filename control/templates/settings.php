@@ -3,14 +3,20 @@ global $wpdb;
 $settings = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}control_settings", OBJECT_K );
 ?>
 
+<?php
+$current_user = Control_Auth::current_user();
+$is_admin = Control_Auth::is_admin();
+?>
+
 <div class="control-header-flex" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h2 style="font-weight:800; font-size:1.3rem; margin:0; color:var(--control-text-dark);"><?php _e('إعدادات النظام', 'control'); ?></h2>
+    <h2 style="font-weight:800; font-size:1.3rem; margin:0; color:var(--control-text-dark);"><?php echo $is_admin ? __('إعدادات النظام', 'control') : __('إعدادات الحساب', 'control'); ?></h2>
 </div>
 
 <div class="control-settings-wrapper" style="display:grid; grid-template-columns: 200px 1fr; gap:30px; align-items: flex-start;">
 
     <div class="control-settings-sidebar" style="background:#fff; border:1px solid var(--control-border); border-radius:var(--control-radius); padding:10px; box-shadow:var(--control-shadow-sm); position:sticky; top:20px;">
         <div class="settings-nav-group">
+            <?php if ($is_admin): ?>
             <button class="control-tab-btn active" data-tab="tab-identity">
                 <span class="dashicons dashicons-admin-appearance"></span>
                 <span><?php _e('هوية النظام', 'control'); ?></span>
@@ -39,10 +45,59 @@ $settings = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}control_settings",
                 <span class="dashicons dashicons-list-view"></span>
                 <span><?php _e('سجل النشاطات', 'control'); ?></span>
             </button>
+            <?php endif; ?>
+
+            <button class="control-tab-btn <?php echo !$is_admin ? 'active' : ''; ?>" data-tab="tab-profile">
+                <span class="dashicons dashicons-admin-users"></span>
+                <span><?php _e('الملف الشخصي', 'control'); ?></span>
+            </button>
         </div>
     </div>
 
     <div class="control-tab-content-container">
+        <!-- Section: User Profile Management -->
+        <div id="tab-profile" class="control-tab-content <?php echo !$is_admin ? 'active' : ''; ?>">
+            <div class="control-card" style="border-top: 4px solid var(--control-accent); padding: 25px;">
+                <div style="margin-bottom:25px; border-bottom:1px solid var(--control-bg); padding-bottom:15px;">
+                    <h3 style="margin:0; font-size:1.1rem; color:var(--control-text-dark);"><?php _e('إدارة الملف الشخصي', 'control'); ?></h3>
+                    <div style="color:var(--control-muted); font-size:0.8rem; margin-top:5px;"><?php _e('تحديث معلوماتك الشخصية وعنوان الشحن.', 'control'); ?></div>
+                </div>
+
+                <form id="matjar-profile-form" class="control-system-settings-form">
+                    <div class="control-grid" style="grid-template-columns: 1fr 1fr; gap:20px;">
+                        <div class="control-form-group">
+                            <label><?php _e('الاسم بالكامل', 'control'); ?></label>
+                            <input type="text" name="full_name" value="<?php echo esc_attr($current_user->name); ?>" required>
+                        </div>
+                        <div class="control-form-group">
+                            <label><?php _e('البريد الإلكتروني', 'control'); ?></label>
+                            <input type="email" name="email" value="<?php echo esc_attr($current_user->email ?? ''); ?>" required>
+                        </div>
+                    </div>
+                    <div class="control-grid" style="grid-template-columns: 1fr 1fr; gap:20px;">
+                        <div class="control-form-group">
+                            <label><?php _e('رقم الهاتف', 'control'); ?></label>
+                            <input type="text" name="phone" value="<?php echo esc_attr($current_user->phone ?? ''); ?>" required>
+                        </div>
+                        <div class="control-form-group">
+                            <label><?php _e('كلمة المرور الجديدة', 'control'); ?></label>
+                            <input type="password" name="password" placeholder="<?php _e('اتركه فارغاً لعدم التغيير', 'control'); ?>">
+                        </div>
+                    </div>
+                    <div class="control-form-group">
+                        <label><?php _e('عنوان الشحن / الفواتير', 'control'); ?></label>
+                        <textarea name="address" rows="3"><?php echo esc_textarea($current_user->address ?? ''); ?></textarea>
+                    </div>
+                    <div style="margin-top:20px;">
+                        <button type="submit" class="control-btn control-btn-accent" style="min-width: 180px;">
+                            <?php _e('حفظ التعديلات', 'control'); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <?php if ($is_admin): ?>
         <!-- Section 1: System Identity -->
         <div id="tab-identity" class="control-tab-content active">
             <div class="control-card" style="border-top: 4px solid var(--control-accent); padding: 25px;">
@@ -856,5 +911,6 @@ $settings = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}control_settings",
                 </div>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 </div>
