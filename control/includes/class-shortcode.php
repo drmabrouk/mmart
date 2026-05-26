@@ -19,15 +19,16 @@ class Control_Shortcode {
 		global $wpdb;
 		ob_start();
 
+		include CONTROL_PATH . 'templates/header.php';
+
 		if ( ! Control_Auth::is_logged_in() ) {
 			include CONTROL_PATH . 'templates/login.php';
+			include CONTROL_PATH . 'templates/footer.php';
 			return ob_get_clean();
 		}
 
 		$view = isset( $_GET['control_view'] ) ? sanitize_text_field( $_GET['control_view'] ) : 'dashboard';
 		$is_admin = Control_Auth::is_admin();
-
-		include CONTROL_PATH . 'templates/header.php';
 
 		$no_access_html = '
 		<div style="text-align:center; padding:100px 30px; background:#fff; border-radius:20px; border:1px solid #e2e8f0; max-width:600px; margin: 40px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
@@ -63,6 +64,13 @@ class Control_Shortcode {
 					include CONTROL_PATH . 'templates/settings.php';
 				}
 				break;
+			case 'products':
+				if ( ! Control_Auth::is_admin() ) {
+					echo $no_access_html;
+				} else {
+					include CONTROL_PATH . 'templates/admin-products.php';
+				}
+				break;
 			default:
 				if ( ! Control_Auth::has_permission('dashboard') ) {
 					echo $no_access_html;
@@ -78,31 +86,41 @@ class Control_Shortcode {
 
 	public function render_store() {
 		ob_start();
+		include CONTROL_PATH . 'templates/header.php';
 		include CONTROL_PATH . 'templates/store.php';
+		include CONTROL_PATH . 'templates/footer.php';
 		return ob_get_clean();
 	}
 
 	public function render_cart() {
 		ob_start();
+		include CONTROL_PATH . 'templates/header.php';
 		include CONTROL_PATH . 'templates/cart.php';
+		include CONTROL_PATH . 'templates/footer.php';
 		return ob_get_clean();
 	}
 
 	public function render_orders() {
 		ob_start();
+		include CONTROL_PATH . 'templates/header.php';
 		include CONTROL_PATH . 'templates/orders.php';
+		include CONTROL_PATH . 'templates/footer.php';
 		return ob_get_clean();
 	}
 
 	public function render_settings() {
 		ob_start();
+		include CONTROL_PATH . 'templates/header.php';
 		include CONTROL_PATH . 'templates/settings.php';
+		include CONTROL_PATH . 'templates/footer.php';
 		return ob_get_clean();
 	}
 
 	public function render_single_product() {
 		ob_start();
+		include CONTROL_PATH . 'templates/header.php';
 		include CONTROL_PATH . 'templates/single-product.php';
+		include CONTROL_PATH . 'templates/footer.php';
 		return ob_get_clean();
 	}
 

@@ -35,7 +35,7 @@
     <?php endif; ?>
 </style>
 <div class="control-dashboard" id="control-system-root">
-    <div class="control-mobile-header" style="display:none; background:#000; padding:10px 15px; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10005; border-bottom:1px solid #1a1a1a; direction: rtl;">
+    <div class="control-mobile-header" style="display:none; background:#000; padding:10px 15px; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:999998; border-bottom:1px solid #1a1a1a; direction: rtl;">
         <div class="mobile-header-logo" style="flex: 1; text-align: right;">
             <?php if ( $logo_url ) : ?>
                 <img src="<?php echo esc_url($logo_url); ?>" alt="Control" style="max-height:30px; width:auto; object-fit:contain; display:block;">

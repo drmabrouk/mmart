@@ -276,6 +276,49 @@ class Control_Database {
 			}
 		}
 
+		// Seed Dummy Products
+		$product_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}matjar_products");
+		if ($product_count == 0) {
+			$dummy_products = array(
+				array(
+					'name' => 'Premium Cotton T-Shirt',
+					'description' => 'High-quality Egyptian cotton t-shirt for maximum comfort.',
+					'price' => 350.00,
+					'image_url' => 'https://via.placeholder.com/600x600?text=Premium+T-Shirt',
+					'stock' => 50,
+					'category' => 'Apparel'
+				),
+				array(
+					'name' => 'Leather Messenger Bag',
+					'description' => 'Handcrafted genuine leather bag for daily essentials.',
+					'price' => 1250.00,
+					'image_url' => 'https://via.placeholder.com/600x600?text=Leather+Bag',
+					'stock' => 15,
+					'category' => 'Accessories'
+				),
+				array(
+					'name' => 'Minimalist Wall Clock',
+					'description' => 'Modern design wall clock with silent mechanism.',
+					'price' => 450.00,
+					'image_url' => 'https://via.placeholder.com/600x600?text=Wall+Clock',
+					'stock' => 30,
+					'category' => 'Home Decor'
+				),
+				array(
+					'name' => 'Wireless Noise-Cancelling Headphones',
+					'description' => 'Experience pure sound with our latest noise-cancelling technology.',
+					'price' => 2800.00,
+					'image_url' => 'https://via.placeholder.com/600x600?text=Headphones',
+					'stock' => 5,
+					'category' => 'Electronics'
+				)
+			);
+
+			foreach ($dummy_products as $p) {
+				$wpdb->insert("{$wpdb->prefix}matjar_products", $p);
+			}
+		}
+
 		// Seed Email Templates
 		$templates = array(
 			'welcome_email' => array(
