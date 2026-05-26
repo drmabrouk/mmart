@@ -119,7 +119,7 @@ if ( Control_Auth::is_admin() ) {
         <h2 style="font-weight:800; font-size:1.3rem; margin:0; color:#1e293b;"><?php _e('لوحة المعلومات', 'control'); ?></h2>
     </div>
     <div class="control-card" style="border-radius: 12px; padding: 20px;">
-        <p><?php _e('أهلاً بك في نظام كنترول الإداري.', 'control'); ?></p>
+        <p><?php _e('أهلاً بك في نظام متجر الإداري.', 'control'); ?></p>
         <p style="color:#64748b; font-size:0.9rem;"><?php _e('برجاء التواصل مع الإدارة إذا كنت بحاجة إلى صلاحيات إضافية للوصول إلى لوحة التحكم.', 'control'); ?></p>
     </div>
     <?php
