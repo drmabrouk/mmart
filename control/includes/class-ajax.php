@@ -1317,13 +1317,28 @@ class Control_Ajax {
 
 		global $wpdb;
 		$total = 0;
+		$verified_items = array();
+
 		foreach ( $cart as $item ) {
-			$total += floatval($item['price']);
+			$product_id = intval($item['id']);
+			$db_product = $wpdb->get_row( $wpdb->prepare( "SELECT name, price FROM {$wpdb->prefix}matjar_products WHERE id = %d", $product_id ) );
+
+			if ( $db_product ) {
+				$item_price = floatval($db_product->price);
+				$total += $item_price;
+				$verified_items[] = array(
+					'id'    => $product_id,
+					'name'  => $db_product->name,
+					'price' => $item_price
+				);
+			}
 		}
+
+		if ( empty($verified_items) ) $this->send_error( 'Invalid products in cart' );
 
 		$wpdb->insert( $wpdb->prefix . 'matjar_orders', array(
 			'user_id' => $current_user->id,
-			'items'   => json_encode($cart),
+			'items'   => json_encode($verified_items),
 			'total'   => $total,
 			'status'  => 'pending'
 		) );

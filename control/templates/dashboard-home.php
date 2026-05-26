@@ -4,77 +4,108 @@ $current_user = Control_Auth::current_user();
 if ( Control_Auth::is_admin() ) {
     $total_users = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}control_staff");
     ?>
-    <div class="control-header-flex" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="font-weight:800; font-size:1.3rem; margin:0; color:#1e293b;"><?php _e('لوحة تحكم النظام', 'control'); ?></h2>
+    <div class="control-header-flex" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h2 style="font-weight:800; font-size:1.4rem; margin:0; color:#1e293b;"><?php _e('نظرة عامة على المتجر', 'control'); ?></h2>
+        <div style="display:flex; gap:10px;">
+            <a href="<?php echo admin_url('admin.php?page=matjar-products'); ?>" class="control-btn" style="background:#0f172a; border:none; height:40px; font-size:0.8rem;"><span class="dashicons dashicons-cart" style="margin-left:5px;"></span><?php _e('إدارة المنتجات', 'control'); ?></a>
+            <a href="<?php echo add_query_arg('control_view', 'users'); ?>" class="control-btn" style="background:var(--control-accent); color:#000 !important; border:none; height:40px; font-size:0.8rem;"><span class="dashicons dashicons-groups" style="margin-left:5px;"></span><?php _e('العملاء والشركاء', 'control'); ?></a>
+        </div>
     </div>
 
-    <!-- Enhanced System Metrics -->
-    <div class="control-metrics-grid" style="margin-bottom:30px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px;">
-        <div class="control-card" style="border-top: none; background: linear-gradient(45deg, #0f172a, #334155); color: #fff; padding: 25px; display: flex; align-items: center; gap: 20px;">
-            <div style="width: 55px; height: 55px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--control-accent);">
-                <span class="dashicons dashicons-groups" style="font-size: 28px; width: 28px; height: 28px;"></span>
+    <?php
+    // Fetch E-commerce Metrics
+    $revenue = $wpdb->get_var("SELECT SUM(total) FROM {$wpdb->prefix}matjar_orders WHERE status != 'cancelled'");
+    $order_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}matjar_orders");
+    $pending_orders = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}matjar_orders WHERE status = 'pending'");
+    $low_stock_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}matjar_products WHERE stock < 10");
+    ?>
+
+    <!-- E-commerce Critical Metrics -->
+    <div class="control-metrics-grid" style="margin-bottom:30px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+        <div class="control-card" style="border:none; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 25px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); font-weight: 600; margin-bottom:5px;"><?php _e('إجمالي الإيرادات', 'control'); ?></div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color:var(--control-accent);"><?php echo number_format($revenue, 2); ?> <small style="font-size:0.9rem;">SAR</small></div>
+                </div>
+                <div style="width: 45px; height: 45px; background: rgba(212,175,55,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--control-accent);">
+                    <span class="dashicons dashicons-chart-area" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                </div>
             </div>
-            <div>
-                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.7); font-weight: 600;"><?php _e('إجمالي المسجلين', 'control'); ?></div>
-                <div style="font-size: 1.6rem; font-weight: 800;"><?php echo number_format($total_users); ?></div>
-            </div>
+            <div style="margin-top:15px; font-size:0.7rem; color:rgba(255,255,255,0.5);"><?php echo sprintf(__('من %d عملية بيع ناجحة', 'control'), $order_count); ?></div>
         </div>
 
-        <?php
-        $roles_count = $wpdb->get_results("SELECT role, COUNT(*) as count FROM {$wpdb->prefix}control_staff GROUP BY role", OBJECT_K);
-        $role_labels = Control_Auth::get_roles();
-        $coach_count = $roles_count['coach']->count ?? 0;
-        ?>
-        <div class="control-card" style="border-top: none; padding: 25px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--control-border);">
-            <div style="width: 55px; height: 55px; background: var(--control-accent-soft); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--control-accent);">
-                <span class="dashicons dashicons-businessman" style="font-size: 28px; width: 28px; height: 28px;"></span>
+        <div class="control-card" style="border:1px solid var(--control-border); padding: 25px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--control-muted); font-weight: 600; margin-bottom:5px;"><?php _e('طلبات بانتظار الإجراء', 'control'); ?></div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #ef4444;"><?php echo number_format($pending_orders); ?></div>
+                </div>
+                <div style="width: 45px; height: 45px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                    <span class="dashicons dashicons-warning" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                </div>
             </div>
-            <div>
-                <div style="font-size: 0.8rem; color: var(--control-muted); font-weight: 600;"><?php _e('المدربين الرياضيين', 'control'); ?></div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--control-text-dark);"><?php echo number_format($coach_count); ?></div>
-            </div>
+            <div style="margin-top:15px; font-size:0.7rem; color:var(--control-muted);"><?php _e('تطلب معالجة فورية (شحن/دفع)', 'control'); ?></div>
         </div>
 
-        <div class="control-card" style="border-top: none; padding: 25px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--control-border);">
-            <div style="width: 55px; height: 55px; background: #ecfdf5; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #10b981;">
-                <span class="dashicons dashicons-yes-alt" style="font-size: 28px; width: 28px; height: 28px;"></span>
+        <div class="control-card" style="border:1px solid var(--control-border); padding: 25px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--control-muted); font-weight: 600; margin-bottom:5px;"><?php _e('تنبيهات المخزون', 'control'); ?></div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #f59e0b;"><?php echo number_format($low_stock_count); ?></div>
+                </div>
+                <div style="width: 45px; height: 45px; background: #fffbeb; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #d97706;">
+                    <span class="dashicons dashicons-database-export" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                </div>
             </div>
-            <div>
-                <div style="font-size: 0.8rem; color: var(--control-muted); font-weight: 600;"><?php _e('الحسابات النشطة', 'control'); ?></div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--control-text-dark);"><?php echo $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}control_staff WHERE is_restricted = 0"); ?></div>
-            </div>
+            <div style="margin-top:15px; font-size:0.7rem; color:var(--control-muted);"><?php _e('منتجات قاربت على النفاد (أقل من 10)', 'control'); ?></div>
         </div>
     </div>
 
     <div class="control-grid main-dashboard-grid" style="grid-template-columns: 1fr; gap: 25px;">
         <div class="control-dashboard-main-column">
-            <!-- System Overview Card -->
-            <div class="control-card" style="padding: 30px; border-top: 5px solid var(--control-accent);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-                    <div style="display:flex; align-items:center; gap:20px;">
-                        <div style="width:60px; height:60px; background:var(--control-bg); border-radius:15px; display:flex; align-items:center; justify-content:center;">
-                            <span class="dashicons dashicons-performance" style="font-size:30px; color:var(--control-accent); width:30px; height:30px;"></span>
-                        </div>
-                        <div>
-                            <h3 style="margin:0; font-size:1.2rem;"><?php _e('توزع الكوادر البشرية', 'control'); ?></h3>
-                            <p style="margin:5px 0 0 0; color:var(--control-muted); font-size:0.85rem;"><?php _e('إحصائية شاملة لعدد المسجلين حسب كل دور وظيفي.', 'control'); ?></p>
-                        </div>
+            <!-- Sales & Orders Detailed Table -->
+            <div class="control-card" style="padding: 0; overflow: hidden; border:1px solid var(--control-border);">
+                <div style="padding: 20px 30px; background: #f8fafc; border-bottom: 1px solid var(--control-border); display:flex; justify-content: space-between; align-items: center;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="dashicons dashicons-cart" style="color:var(--control-accent);"></span>
+                        <h3 style="margin:0; font-size:1rem;"><?php _e('آخر الطلبات الواردة', 'control'); ?></h3>
                     </div>
-                    <a href="<?php echo add_query_arg('control_view', 'users'); ?>" class="control-btn" style="background:var(--control-primary); border:none;"><?php _e('إدارة الكوادر', 'control'); ?></a>
+                    <button class="control-btn" style="height:32px; padding:0 12px; font-size:0.7rem; background:#fff; color:var(--control-text-dark) !important; border:1px solid var(--control-border);"><?php _e('تصدير التقرير', 'control'); ?></button>
                 </div>
-
-                <div class="workforce-distribution-grid">
-                    <?php
-                    // Limit to 6 roles for the metrics
-                    $display_roles = array_slice($role_labels, 0, 6, true);
-                    foreach($display_roles as $role_key => $label):
-                        $count = $roles_count[$role_key]->count ?? 0;
-                        ?>
-                        <div class="workforce-card">
-                            <div class="workforce-label"><?php echo $label; ?></div>
-                            <div class="workforce-count"><?php echo number_format($count); ?></div>
-                        </div>
-                    <?php endforeach; ?>
+                <div style="padding: 0;">
+                    <table class="control-table" style="width:100%; font-size:0.85rem; border-collapse: collapse;">
+                        <thead style="background:#f1f5f9; color:var(--control-muted); font-size:0.7rem; text-transform:uppercase;">
+                            <tr>
+                                <th style="padding:15px 30px; text-align:right;"><?php _e('رقم الطلب', 'control'); ?></th>
+                                <th style="padding:15px; text-align:right;"><?php _e('العميل', 'control'); ?></th>
+                                <th style="padding:15px; text-align:right;"><?php _e('المبلغ', 'control'); ?></th>
+                                <th style="padding:15px; text-align:right;"><?php _e('الحالة', 'control'); ?></th>
+                                <th style="padding:15px 30px; text-align:left;"><?php _e('التاريخ', 'control'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $recent_orders = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}matjar_orders ORDER BY created_at DESC LIMIT 5");
+                            if (empty($recent_orders)): ?>
+                                <tr><td colspan="5" style="padding:40px; text-align:center; color:var(--control-muted);"><?php _e('لا توجد طلبات مسجلة بعد.', 'control'); ?></td></tr>
+                            <?php else:
+                                foreach($recent_orders as $order): ?>
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding:15px 30px; font-weight:700;">#<?php echo $order->id; ?></td>
+                                        <td style="padding:15px;">User ID: <?php echo esc_html($order->user_id); ?></td>
+                                        <td style="padding:15px; font-weight:800; color:var(--control-text-dark);"><?php echo number_format($order->total, 2); ?> <small>SAR</small></td>
+                                        <td style="padding:15px;">
+                                            <span class="control-status-indicator <?php echo $order->status === 'pending' ? 'indicator-warning' : 'indicator-success'; ?>" style="font-size:0.65rem;">
+                                                <?php echo esc_html($order->status); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding:15px 30px; text-align:left; color:var(--control-muted); font-size:0.75rem;"><?php echo date('Y/m/d H:i', strtotime($order->created_at)); ?></td>
+                                    </tr>
+                                <?php endforeach;
+                            endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
