@@ -823,21 +823,24 @@ body, .control-dashboard {
 
 /* Matjar Floating Nav */
 .matjar-floating-nav {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #000;
-    width: calc(100% - 40px);
-    max-width: 450px;
-    height: 70px;
+    position: fixed !important;
+    bottom: 25px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: #111;
+    width: calc(100% - 30px);
+    max-width: 420px;
+    height: 65px;
     border-radius: 20px;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    z-index: 10005;
-    padding: 0 10px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    z-index: 999999 !important;
+    padding: 0 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: env(safe-area-inset-bottom);
 }
 
 .matjar-floating-nav .nav-item {
@@ -879,16 +882,18 @@ body, .control-dashboard {
 
 .matjar-product-card {
     background: #fff;
-    border-radius: 20px;
-    border: 1px solid var(--control-border);
+    border-radius: 24px;
+    border: 1px solid rgba(0,0,0,0.03);
     overflow: hidden;
-    transition: var(--control-transition);
-    box-shadow: var(--control-shadow-sm);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
 }
 
 .matjar-product-card:hover {
-    box-shadow: var(--control-shadow);
-    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    transform: translateY(-8px);
 }
 
 .matjar-product-card .product-image {
@@ -898,7 +903,44 @@ body, .control-dashboard {
 }
 
 .matjar-product-card .product-info {
-    padding: 15px;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.matjar-product-card h4 {
+    font-size: 1rem;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+}
+
+.matjar-product-card .price-tag {
+    font-size: 1.1rem;
+    color: var(--control-accent);
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.add-to-cart-btn {
+    margin-top: auto;
+    border-radius: 14px;
+    background: #000;
+    color: #fff;
+    border: none;
+    height: 44px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.add-to-cart-btn:active {
+    transform: scale(0.95);
+    background: #333;
 }
 
 /* Responsive Grid */

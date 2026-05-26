@@ -1043,10 +1043,19 @@ jQuery(document).ready(function($) {
     let matjarCart = JSON.parse(localStorage.getItem('matjar_cart')) || [];
 
     function updateCartUI() {
+        const count = matjarCart.length;
+        const $cartBadge = $('#matjar-cart-count');
+
+        if (count > 0) {
+            $cartBadge.text(count).css('display', 'flex');
+        } else {
+            $cartBadge.hide();
+        }
+
         const $cartContainer = $('#matjar-cart-items');
         if (!$cartContainer.length) return;
 
-        if (matjarCart.length === 0) {
+        if (count === 0) {
             $cartContainer.html('<p style="text-align: center; padding: 40px; color: var(--control-muted);">السلة فارغة حالياً</p>');
             $('#cart-total').text('0 SAR');
             $('#confirm-order-btn').prop('disabled', true);
@@ -1056,7 +1065,7 @@ jQuery(document).ready(function($) {
         let html = '<div class="cart-items-list" style="display:flex; flex-direction:column; gap:15px;">';
         let total = 0;
         matjarCart.forEach((item, index) => {
-            const price = parseInt(item.price);
+            const price = parseFloat(item.price);
             total += price;
             html += `
                 <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; background:var(--control-bg); padding:15px; border-radius:12px;">
@@ -1064,7 +1073,7 @@ jQuery(document).ready(function($) {
                         <img src="${item.img}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
                         <div>
                             <div style="font-weight:700;">${item.name}</div>
-                            <div style="font-size:0.8rem; color:var(--control-accent); font-weight:800;">${item.price}</div>
+                            <div style="font-size:0.8rem; color:var(--control-accent); font-weight:800;">${item.price} SAR</div>
                         </div>
                     </div>
                     <button class="remove-from-cart" data-index="${index}" style="background:none; border:none; color:#ef4444; cursor:pointer;">
@@ -1075,7 +1084,7 @@ jQuery(document).ready(function($) {
         });
         html += '</div>';
         $cartContainer.html(html);
-        $('#cart-total').text(total + ' SAR');
+        $('#cart-total').text(total.toFixed(2) + ' SAR');
         $('#confirm-order-btn').prop('disabled', false);
     }
 
@@ -1084,12 +1093,18 @@ jQuery(document).ready(function($) {
         const product = {
             id: $(this).data('id'),
             name: $card.find('h4').text(),
-            price: $card.find('p').text(),
+            price: parseFloat($card.find('.price-tag').text()),
             img: $card.find('img').attr('src')
         };
         matjarCart.push(product);
         localStorage.setItem('matjar_cart', JSON.stringify(matjarCart));
-        alert('تمت إضافة المنتج للسلة بنجاح');
+        updateCartUI();
+
+        // Instant feedback
+        const $btn = $(this);
+        const originalText = $btn.html();
+        $btn.html('<span class="dashicons dashicons-yes"></span> تم الإضافة').css('background', '#059669');
+        setTimeout(() => $btn.html(originalText).css('background', ''), 2000);
     });
 
     $(document).on('click', '.remove-from-cart', function() {
@@ -1103,14 +1118,18 @@ jQuery(document).ready(function($) {
         const $btn = $(this);
         $btn.prop('disabled', true).text('جاري المعالجة...');
 
-        // In a real app, this would be an AJAX call to the server
-        setTimeout(() => {
-            alert('تم تأمين الطلب بنجاح! شكراً لتسوقك معنا.');
-            matjarCart = [];
-            localStorage.removeItem('matjar_cart');
-            updateCartUI();
-            window.location.href = $('.matjar-floating-nav a').eq(2).attr('href'); // Redirect to orders
-        }, 1500);
+        $.post(control_ajax.ajax_url, { action: 'control_place_order', cart: matjarCart, nonce: control_ajax.nonce }, function(res) {
+            if (res.success) {
+                alert(res.data);
+                matjarCart = [];
+                localStorage.removeItem('matjar_cart');
+                updateCartUI();
+                window.location.href = $('.matjar-floating-nav a').eq(2).attr('href');
+            } else {
+                alert(res.data.message || 'حدث خطأ');
+                $btn.prop('disabled', false).text('إتمام الطلب');
+            }
+        });
     });
 
     updateCartUI();
@@ -1135,10 +1154,105 @@ jQuery(document).ready(function($) {
         const originalText = $btn.text();
         $btn.prop('disabled', true).text('جاري الحفظ...');
 
-        // Simulate update
-        setTimeout(() => {
-            alert('تم تحديث الملف الشخصي بنجاح');
+        $.post(control_ajax.ajax_url, $(this).serialize() + '&action=control_update_profile&nonce=' + control_ajax.nonce, function(res) {
+            if (res.success) {
+                alert(res.data || 'تم تحديث الملف الشخصي بنجاح');
+            } else {
+                alert(res.data.message || 'حدث خطأ أثناء الحفظ');
+            }
             $btn.prop('disabled', false).text(originalText);
-        }, 1000);
+        });
+    });
+
+    // --- Matjar Product Management (Admin) ---
+    $(document).on('click', '.add-new-product-btn', function(e) {
+        e.preventDefault();
+        $('#product-modal-title').text('إضافة منتج جديد');
+        $('#matjar-admin-product-form')[0].reset();
+        $('#product-id').val('0');
+        $('#matjar-product-modal').css('display', 'flex');
+    });
+
+    $(document).on('click', '.edit-product', function(e) {
+        e.preventDefault();
+        const product = $(this).closest('tr').data('product');
+        $('#product-modal-title').text('تعديل منتج');
+        $('#product-id').val(product.id);
+        $('#product-name').val(product.name);
+        $('#product-description').val(product.description);
+        $('#product-price').val(product.price);
+        $('#product-stock').val(product.stock);
+        $('#product-image-url').val(product.image_url);
+        $('#product-category').val(product.category);
+        $('#matjar-product-modal').css('display', 'flex');
+    });
+
+    $(document).on('click', '.matjar-close-modal', function() {
+        $('#matjar-product-modal').hide();
+    });
+
+    $(document).on('submit', '#matjar-admin-product-form', function(e) {
+        e.preventDefault();
+        const $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).text('جاري الحفظ...');
+
+        $.post(control_ajax.ajax_url, $(this).serialize() + '&action=control_save_product&nonce=' + control_ajax.nonce, function(res) {
+            if (res.success) {
+                location.reload();
+            } else {
+                alert('حدث خطأ');
+                $btn.prop('disabled', false).text('حفظ المنتج');
+            }
+        });
+    });
+
+    $(document).on('click', '.delete-product', function(e) {
+        e.preventDefault();
+        if (!confirm('هل أنت متأكد من الحذف؟')) return;
+        const id = $(this).data('id');
+        $.post(control_ajax.ajax_url, { action: 'control_delete_product', id: id, nonce: control_ajax.nonce }, function() {
+            location.reload();
+        });
+    });
+
+    $(document).on('click', '#matjar-export-products', function() {
+        $.post(control_ajax.ajax_url, { action: 'control_export_products', nonce: control_ajax.nonce }, function(res) {
+            if (res.success) {
+                const blob = new Blob([res.data.content], { type: 'text/csv' });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = res.data.filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+    });
+
+    $(document).on('click', '#matjar-import-trigger', function() {
+        $('#matjar-import-file').click();
+    });
+
+    $(document).on('change', '#matjar-import-file', function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const data = event.target.result;
+            $.post(control_ajax.ajax_url, { action: 'control_import_products', data: data, nonce: control_ajax.nonce }, function(res) {
+                alert(res.data);
+                location.reload();
+            });
+        };
+        reader.readAsText(file);
+    });
+
+    $(document).on('click', '.matjar-upload-btn', function(e) {
+        e.preventDefault();
+        const btn = $(this);
+        const frame = wp.media({ title: 'اختر صورة المنتج', multiple: false }).open();
+        frame.on('select', function() {
+            const attachment = frame.state().get('selection').first().toJSON();
+            $('#product-image-url').val(attachment.url);
+        });
     });
 });

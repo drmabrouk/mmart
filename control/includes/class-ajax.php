@@ -19,7 +19,9 @@ class Control_Ajax {
 			'get_user_insights', 'check_uniqueness',
 			'send_admin_reset_email', 'process_password_reset',
 			'verify_recovery_otp', 'reset_password_recovery',
-			'get_email_templates', 'preview_email', 'send_manual_email'
+			'get_email_templates', 'preview_email', 'send_manual_email',
+			'save_product', 'delete_product', 'export_products', 'import_products',
+			'place_order'
 		);
 
 		foreach ( $private_actions as $action ) {
@@ -1215,6 +1217,119 @@ class Control_Ajax {
 
 		$html = Control_Notifications::get_html_wrapper( $content );
 		$this->send_success( $html );
+	}
+
+	public function save_product() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) $this->send_error( 'Unauthorized', 403 );
+
+		global $wpdb;
+		$id = intval( $_POST['id'] ?? 0 );
+		$data = array(
+			'name'        => sanitize_text_field( $_POST['name'] ),
+			'description' => sanitize_textarea_field( $_POST['description'] ),
+			'price'       => floatval( $_POST['price'] ),
+			'stock'       => intval( $_POST['stock'] ),
+			'image_url'   => sanitize_text_field( $_POST['image_url'] ),
+			'category'    => sanitize_text_field( $_POST['category'] ),
+		);
+
+		if ( $id ) {
+			$wpdb->update( $wpdb->prefix . 'matjar_products', $data, array( 'id' => $id ) );
+		} else {
+			$wpdb->insert( $wpdb->prefix . 'matjar_products', $data );
+		}
+
+		$this->send_success();
+	}
+
+	public function delete_product() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) $this->send_error( 'Unauthorized', 403 );
+
+		global $wpdb;
+		$id = intval( $_POST['id'] );
+		$wpdb->delete( $wpdb->prefix . 'matjar_products', array( 'id' => $id ) );
+		$this->send_success();
+	}
+
+	public function export_products() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) $this->send_error( 'Unauthorized', 403 );
+
+		global $wpdb;
+		$products = $wpdb->get_results( "SELECT name, description, price, stock, image_url, category FROM {$wpdb->prefix}matjar_products", ARRAY_A );
+
+		if ( empty($products) ) $this->send_error( 'No products found' );
+
+		ob_start();
+		$df = fopen("php://output", 'w');
+		fputcsv($df, array_keys(reset($products)));
+		foreach ($products as $row) {
+			fputcsv($df, $row);
+		}
+		fclose($df);
+		$csv = ob_get_clean();
+
+		$this->send_success( array( 'content' => $csv, 'filename' => 'matjar_products_export_' . date('Y-m-d') . '.csv' ) );
+	}
+
+	public function import_products() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) $this->send_error( 'Unauthorized', 403 );
+
+		$csv_data = $_POST['data'] ?? '';
+		if ( empty($csv_data) ) $this->send_error( 'No data provided' );
+
+		$lines = explode( "\n", str_replace( "\r", "", $csv_data ) );
+		$header = str_getcsv( array_shift( $lines ) );
+
+		global $wpdb;
+		$count = 0;
+
+		foreach ( $lines as $line ) {
+			if ( empty($line) ) continue;
+			$row = @array_combine( $header, str_getcsv( $line ) );
+			if ( ! $row ) continue;
+
+			$wpdb->insert( "{$wpdb->prefix}matjar_products", array(
+				'name'        => sanitize_text_field( $row['name'] ),
+				'description' => sanitize_textarea_field( $row['description'] ?? '' ),
+				'price'       => floatval( $row['price'] ),
+				'stock'       => intval( $row['stock'] ?? 0 ),
+				'image_url'   => sanitize_text_field( $row['image_url'] ?? '' ),
+				'category'    => sanitize_text_field( $row['category'] ?? '' ),
+			) );
+			$count++;
+		}
+
+		$this->send_success( sprintf( __('تم استيراد %d منتج بنجاح.', 'control'), $count ) );
+	}
+
+	public function place_order() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+		if ( ! Control_Auth::is_logged_in() ) $this->send_error( 'Unauthorized', 403 );
+
+		$current_user = Control_Auth::current_user();
+		$cart = $_POST['cart'] ?? array();
+
+		if ( empty($cart) ) $this->send_error( 'Cart is empty' );
+
+		global $wpdb;
+		$total = 0;
+		foreach ( $cart as $item ) {
+			$total += floatval($item['price']);
+		}
+
+		$wpdb->insert( $wpdb->prefix . 'matjar_orders', array(
+			'user_id' => $current_user->id,
+			'items'   => json_encode($cart),
+			'total'   => $total,
+			'status'  => 'pending'
+		) );
+
+		Control_Audit::log('place_order', "User {$current_user->id} placed a new order of $total SAR");
+		$this->send_success( __('تم استلام طلبك بنجاح وسوف يتم التواصل معك قريباً.', 'control') );
 	}
 
 	public function send_manual_email() {
