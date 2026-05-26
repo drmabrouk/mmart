@@ -54,9 +54,33 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     </div>
                 <?php endif; ?>
 
+                <div class="control-grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="control-form-group">
+                        <label><?php _e('المحافظة', 'control'); ?></label>
+                        <select name="governorate" id="checkout-governorate" required>
+                            <option value=""><?php _e('اختر المحافظة', 'control'); ?></option>
+                            <?php
+                            $govs = $wpdb->get_results( "SELECT governorate FROM {$wpdb->prefix}matjar_shipping_rules ORDER BY governorate ASC" );
+                            foreach($govs as $g) echo '<option value="'.esc_attr($g->governorate).'">'.esc_html($g->governorate).'</option>';
+                            ?>
+                        </select>
+                    </div>
+                    <div class="control-form-group">
+                        <label><?php _e('المدينة / المنطقة', 'control'); ?></label>
+                        <input type="text" name="city" id="checkout-city" required placeholder="<?php _e('اسم المدينة', 'control'); ?>">
+                    </div>
+                </div>
+
                 <div class="control-form-group">
                     <label><?php _e('عنوان التوصيل بالتفصيل', 'control'); ?></label>
-                    <textarea name="shipping_address" id="checkout-address" rows="3" required><?php echo esc_textarea(Control_Auth::current_user()->address ?? ''); ?></textarea>
+                    <textarea name="shipping_address" id="checkout-address" rows="3" required placeholder="<?php _e('رقم الشارع، المبنى، الشقة...', 'control'); ?>"><?php echo esc_textarea(Control_Auth::current_user()->address ?? ''); ?></textarea>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <button type="button" id="get-gps-location" class="control-btn" style="background:#fff; color:var(--control-text-dark) !important; border:1px solid var(--control-border); width:100%; height:45px; font-size:0.85rem;">
+                        <span class="dashicons dashicons-location" style="margin-left:8px;"></span><?php _e('تحديد الموقع عبر GPS (خرائط جوجل)', 'control'); ?>
+                    </button>
+                    <input type="hidden" name="gps_coords" id="checkout-gps">
                 </div>
                 <div class="control-form-group">
                     <label><?php _e('ملاحظات إضافية', 'control'); ?></label>
