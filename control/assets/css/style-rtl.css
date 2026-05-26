@@ -836,20 +836,22 @@ body, .control-dashboard {
     bottom: 25px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    background: #111;
+    background: rgba(17, 17, 17, 0.85);
     width: calc(100% - 30px);
     max-width: 420px;
     height: 65px;
-    border-radius: 20px;
+    border-radius: 24px;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     z-index: 999999 !important;
     padding: 0 15px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255,255,255,0.1);
     margin-bottom: env(safe-area-inset-bottom);
+    transition: all 0.3s ease;
 }
 
 .matjar-floating-nav .nav-item {

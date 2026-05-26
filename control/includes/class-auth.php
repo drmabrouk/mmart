@@ -77,7 +77,10 @@ class Control_Auth {
 		}
 
 		// Explicitly remove legacy roles to enforce the tripartite structure
-		$legacy_roles = array( 'coach', 'therapist', 'nutritionist', 'pe_teacher', 'researcher' );
+		$legacy_roles = array(
+			'coach', 'therapist', 'nutritionist', 'pe_teacher', 'researcher',
+			'sports_trainer', 'physical_therapist', 'sports_researcher', 'sports_nutritionist'
+		);
 		foreach ( $legacy_roles as $legacy_key ) {
 			if ( get_role( $legacy_key ) ) {
 				remove_role( $legacy_key );

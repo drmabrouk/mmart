@@ -499,6 +499,46 @@ jQuery(document).ready(function($) {
         }
     });
 
+    // --- SPA Routing Logic ---
+    $(document).on('click', 'a[href*="' + window.location.origin + '"]', function(e) {
+        const url = $(this).attr('href');
+        // Only intercept if it's not a WP-admin link or a logout link
+        if (url.includes('wp-admin') || url.includes('action=logout') || url.includes('wp-login')) return;
+
+        e.preventDefault();
+        navigateTo(url);
+    });
+
+    function navigateTo(url) {
+        showSync('جاري التحميل...');
+        history.pushState(null, '', url);
+
+        $.get(url, function(html) {
+            const $newDoc = $(html);
+            const $newContent = $newDoc.find('.control-content-inner');
+            const $currentContent = $('.control-content-inner');
+
+            if ($newContent.length && $currentContent.length) {
+                $currentContent.fadeOut(200, function() {
+                    $currentContent.html($newContent.html()).fadeIn(200);
+                    hideSync();
+                    // Re-initialize dynamic elements
+                    updateFloatingLabels();
+                    updateCartUI();
+                    $(window).scrollTop(0);
+                });
+            } else {
+                window.location.href = url;
+            }
+        }).fail(function() {
+            window.location.href = url;
+        });
+    }
+
+    window.onpopstate = function() {
+        navigateTo(window.location.href);
+    };
+
     // --- Settings System & Real-time Design Preview ---
 
     $(document).on('input change', '#control-design-form input, #control-design-form select, #control-identity-form input, #control-identity-form select', function() {
