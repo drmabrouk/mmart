@@ -158,33 +158,15 @@ class Control_Database {
 				'is_system' => 1
 			),
 			array(
-				'role_key'  => 'coach',
-				'role_name' => 'Sports Coach',
-				'permissions' => json_encode(array('dashboard' => true, 'users_view' => true)),
+				'role_key'  => 'vendor',
+				'role_name' => 'Vendor',
+				'permissions' => json_encode(array('dashboard' => true, 'users_view' => false)),
 				'is_system' => 1
 			),
 			array(
-				'role_key'  => 'therapist',
-				'role_name' => 'Sports Therapist',
-				'permissions' => json_encode(array('dashboard' => true, 'users_view' => true)),
-				'is_system' => 1
-			),
-			array(
-				'role_key'  => 'nutritionist',
-				'role_name' => 'Sports Nutrition Specialist',
-				'permissions' => json_encode(array('dashboard' => true, 'users_view' => true)),
-				'is_system' => 1
-			),
-			array(
-				'role_key'  => 'pe_teacher',
-				'role_name' => 'PE Teacher',
-				'permissions' => json_encode(array('dashboard' => true, 'users_view' => true)),
-				'is_system' => 1
-			),
-			array(
-				'role_key'  => 'researcher',
-				'role_name' => 'Sports Researcher',
-				'permissions' => json_encode(array('dashboard' => true, 'users_view' => true)),
+				'role_key'  => 'customer',
+				'role_name' => 'Customer',
+				'permissions' => json_encode(array('dashboard' => true, 'users_view' => false)),
 				'is_system' => 1
 			)
 		);
@@ -319,41 +301,69 @@ class Control_Database {
 	}
 
 	public static function create_dashboard_page() {
-		$page_id = get_option( 'matjar_dashboard_page_id' );
-
-		if ( $page_id ) {
-			$page = get_post( $page_id );
-			if ( $page && $page->post_status !== 'trash' ) {
-				return;
-			}
-		}
-
-		// Check if a page with the shortcode already exists
-		$existing_pages = get_posts( array(
-			'post_type'   => 'page',
-			'post_status' => 'any',
-			's'           => '[matjar_dashboard]',
-		) );
-
-		foreach ( $existing_pages as $post ) {
-			if ( stripos( $post->post_content, '[matjar_dashboard]' ) !== false ) {
-				update_option( 'matjar_dashboard_page_id', $post->ID );
-				return;
-			}
-		}
-
-		$page_data = array(
-			'post_title'    => 'لوحة التحكم',
-			'post_content'  => '[matjar_dashboard]',
-			'post_status'   => 'publish',
-			'post_type'     => 'page',
-			'post_author'   => 1,
+		$core_pages = array(
+			'home' => array(
+				'title'   => 'المتجر',
+				'content' => '[matjar_store]',
+				'option'  => 'matjar_store_page_id'
+			),
+			'cart' => array(
+				'title'   => 'سلة التسوق',
+				'content' => '[matjar_cart]',
+				'option'  => 'matjar_cart_page_id'
+			),
+			'orders' => array(
+				'title'   => 'طلباتي',
+				'content' => '[matjar_orders]',
+				'option'  => 'matjar_orders_page_id'
+			),
+			'settings' => array(
+				'title'   => 'الإعدادات',
+				'content' => '[matjar_settings]',
+				'option'  => 'matjar_settings_page_id'
+			),
 		);
 
-		$new_page_id = wp_insert_post( $page_data );
+		foreach ( $core_pages as $slug => $data ) {
+			$page_id = get_option( $data['option'] );
 
-		if ( $new_page_id && ! is_wp_error( $new_page_id ) ) {
-			update_option( 'matjar_dashboard_page_id', $new_page_id );
+			if ( $page_id ) {
+				$page = get_post( $page_id );
+				if ( $page && $page->post_status !== 'trash' ) {
+					continue;
+				}
+			}
+
+			$existing_pages = get_posts( array(
+				'post_type'   => 'page',
+				'post_status' => 'any',
+				's'           => $data['content'],
+			) );
+
+			$found = false;
+			foreach ( $existing_pages as $post ) {
+				if ( stripos( $post->post_content, $data['content'] ) !== false ) {
+					update_option( $data['option'], $post->ID );
+					$found = true;
+					break;
+				}
+			}
+
+			if ( $found ) continue;
+
+			$page_data = array(
+				'post_title'    => $data['title'],
+				'post_content'  => $data['content'],
+				'post_status'   => 'publish',
+				'post_type'     => 'page',
+				'post_author'   => 1,
+			);
+
+			$new_page_id = wp_insert_post( $page_data );
+
+			if ( $new_page_id && ! is_wp_error( $new_page_id ) ) {
+				update_option( $data['option'], $new_page_id );
+			}
 		}
 	}
 }

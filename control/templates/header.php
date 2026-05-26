@@ -111,35 +111,24 @@
         </div>
     </aside>
 
-    <!-- Mobile Bottom Bar (Fixed) -->
-    <div class="control-mobile-bottom-bar" style="display:none;">
-        <?php if ( Control_Auth::has_permission('dashboard') ) : ?>
-            <a href="<?php echo add_query_arg('control_view', 'dashboard'); ?>" class="mobile-nav-item <?php echo (!isset($_GET['control_view']) || $_GET['control_view'] == 'dashboard') ? 'active' : ''; ?>">
-                <span class="dashicons dashicons-performance"></span>
-                <small><?php _e('الرئيسية', 'control'); ?></small>
-            </a>
-            <div class="mobile-divider"></div>
-        <?php endif; ?>
-
-        <?php if ( Control_Auth::has_permission('users_view') ) : ?>
-            <a href="<?php echo add_query_arg('control_view', 'users'); ?>" class="mobile-nav-item <?php echo (isset($_GET['control_view']) && $_GET['control_view'] == 'users') ? 'active' : ''; ?>">
-                <span class="dashicons dashicons-admin-users"></span>
-                <small><?php _e('المستخدمين', 'control'); ?></small>
-            </a>
-            <div class="mobile-divider"></div>
-        <?php endif; ?>
-
-        <?php if ( Control_Auth::has_permission('settings_manage') ) : ?>
-            <a href="<?php echo add_query_arg('control_view', 'settings'); ?>" class="mobile-nav-item <?php echo (isset($_GET['control_view']) && $_GET['control_view'] == 'settings') ? 'active' : ''; ?>">
-                <span class="dashicons dashicons-admin-generic"></span>
-                <small><?php _e('الإعدادات', 'control'); ?></small>
-            </a>
-            <div class="mobile-divider"></div>
-        <?php endif; ?>
-        <button id="control-mobile-refresh-btn" class="mobile-nav-item" style="background:none; border:none; cursor:pointer;">
-            <span class="dashicons dashicons-update"></span>
-            <small><?php _e('تحديث', 'control'); ?></small>
-        </button>
+    <!-- Floating Bottom Navigation Bar (Mobile) -->
+    <div class="matjar-floating-nav" style="display:none;">
+        <a href="<?php echo get_permalink(get_option('matjar_store_page_id')); ?>" class="nav-item">
+            <span class="dashicons dashicons-store"></span>
+            <small><?php _e('الرئيسية', 'control'); ?></small>
+        </a>
+        <a href="<?php echo get_permalink(get_option('matjar_cart_page_id')); ?>" class="nav-item">
+            <span class="dashicons dashicons-cart"></span>
+            <small><?php _e('السلة', 'control'); ?></small>
+        </a>
+        <a href="<?php echo get_permalink(get_option('matjar_orders_page_id')); ?>" class="nav-item">
+            <span class="dashicons dashicons-list-view"></span>
+            <small><?php _e('طلباتي', 'control'); ?></small>
+        </a>
+        <a href="<?php echo get_permalink(get_option('matjar_settings_page_id')); ?>" class="nav-item">
+            <span class="dashicons dashicons-admin-generic"></span>
+            <small><?php _e('الإعدادات', 'control'); ?></small>
+        </a>
     </div>
 
     <div id="control-sync-loader" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#000000; color:#fff; padding:10px 20px; border-radius:30px; z-index:10000; box-shadow:0 4px 12px rgba(0,0,0,0.2); font-weight:600;">

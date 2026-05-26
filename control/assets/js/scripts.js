@@ -1038,4 +1038,107 @@ jQuery(document).ready(function($) {
             $btn.prop('disabled', false).text(originalText);
         });
     });
+
+    // --- Matjar Cart Logic ---
+    let matjarCart = JSON.parse(localStorage.getItem('matjar_cart')) || [];
+
+    function updateCartUI() {
+        const $cartContainer = $('#matjar-cart-items');
+        if (!$cartContainer.length) return;
+
+        if (matjarCart.length === 0) {
+            $cartContainer.html('<p style="text-align: center; padding: 40px; color: var(--control-muted);">السلة فارغة حالياً</p>');
+            $('#cart-total').text('0 SAR');
+            $('#confirm-order-btn').prop('disabled', true);
+            return;
+        }
+
+        let html = '<div class="cart-items-list" style="display:flex; flex-direction:column; gap:15px;">';
+        let total = 0;
+        matjarCart.forEach((item, index) => {
+            const price = parseInt(item.price);
+            total += price;
+            html += `
+                <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; background:var(--control-bg); padding:15px; border-radius:12px;">
+                    <div style="display:flex; gap:15px; align-items:center;">
+                        <img src="${item.img}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
+                        <div>
+                            <div style="font-weight:700;">${item.name}</div>
+                            <div style="font-size:0.8rem; color:var(--control-accent); font-weight:800;">${item.price}</div>
+                        </div>
+                    </div>
+                    <button class="remove-from-cart" data-index="${index}" style="background:none; border:none; color:#ef4444; cursor:pointer;">
+                        <span class="dashicons dashicons-trash"></span>
+                    </button>
+                </div>
+            `;
+        });
+        html += '</div>';
+        $cartContainer.html(html);
+        $('#cart-total').text(total + ' SAR');
+        $('#confirm-order-btn').prop('disabled', false);
+    }
+
+    $(document).on('click', '.add-to-cart-btn', function() {
+        const $card = $(this).closest('.matjar-product-card');
+        const product = {
+            id: $(this).data('id'),
+            name: $card.find('h4').text(),
+            price: $card.find('p').text(),
+            img: $card.find('img').attr('src')
+        };
+        matjarCart.push(product);
+        localStorage.setItem('matjar_cart', JSON.stringify(matjarCart));
+        alert('تمت إضافة المنتج للسلة بنجاح');
+    });
+
+    $(document).on('click', '.remove-from-cart', function() {
+        const index = $(this).data('index');
+        matjarCart.splice(index, 1);
+        localStorage.setItem('matjar_cart', JSON.stringify(matjarCart));
+        updateCartUI();
+    });
+
+    $(document).on('click', '#confirm-order-btn', function() {
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('جاري المعالجة...');
+
+        // In a real app, this would be an AJAX call to the server
+        setTimeout(() => {
+            alert('تم تأمين الطلب بنجاح! شكراً لتسوقك معنا.');
+            matjarCart = [];
+            localStorage.removeItem('matjar_cart');
+            updateCartUI();
+            window.location.href = $('.matjar-floating-nav a').eq(2).attr('href'); // Redirect to orders
+        }, 1500);
+    });
+
+    updateCartUI();
+
+    // --- Matjar Search Logic ---
+    $(document).on('input', '#matjar-search', function() {
+        const query = $(this).val().toLowerCase();
+        $('.matjar-product-card').each(function() {
+            const name = $(this).find('h4').text().toLowerCase();
+            if (name.includes(query)) {
+                $(this).fadeIn(200);
+            } else {
+                $(this).fadeOut(200);
+            }
+        });
+    });
+
+    // --- Matjar Profile Form ---
+    $(document).on('submit', '#matjar-profile-form', function(e) {
+        e.preventDefault();
+        const $btn = $(this).find('button[type="submit"]');
+        const originalText = $btn.text();
+        $btn.prop('disabled', true).text('جاري الحفظ...');
+
+        // Simulate update
+        setTimeout(() => {
+            alert('تم تحديث الملف الشخصي بنجاح');
+            $btn.prop('disabled', false).text(originalText);
+        }, 1000);
+    });
 });
