@@ -120,8 +120,8 @@ class Control_Ajax {
 			}
 		}
 
-		if ( ! preg_match('/^\+(20|971|966|965|974|973|968)[0-9]{7,12}$/', $data['phone']) ) {
-			$this->send_error( __( 'تنسيق رقم الهاتف غير صالح لهذه الدولة.', 'control' ) );
+		if ( ! preg_match('/^\+20[0-9]{7,12}$/', $data['phone']) ) {
+			$this->send_error( __( 'عذراً، هذا النظام متاح فقط للمستخدمين داخل جمهورية مصر العربية.', 'control' ) );
 		}
 
 		if ( strlen($data['password']) < 8 ) {
@@ -459,20 +459,23 @@ class Control_Ajax {
 		global $wpdb;
 		$id = intval( $current_user->id );
 
-		$email = sanitize_email( $_POST['email'] );
+		$email = sanitize_email( $_POST['email'] ?? '' );
+		$full_name = sanitize_text_field( $_POST['full_name'] ?? '' );
+		$name_parts = explode( ' ', $full_name, 2 );
+		$first_name = $name_parts[0] ?? '';
+		$last_name = $name_parts[1] ?? '';
+
+		$phone = sanitize_text_field( $_POST['phone'] ?? '' );
+		if ( ! empty($phone) && ! preg_match('/^\+20[0-9]{7,12}$/', $phone) ) {
+			$this->send_error( __( 'عذراً، يجب أن يكون رقم الهاتف مصرياً ويبدأ بـ +20.', 'control' ) );
+		}
+
 		$data = array(
-			'first_name'     => sanitize_text_field( $_POST['first_name'] ),
-			'last_name'      => sanitize_text_field( $_POST['last_name'] ),
+			'first_name'     => $first_name,
+			'last_name'      => $last_name,
 			'email'          => ! empty( $email ) ? $email : null,
-			'username'       => sanitize_text_field( $_POST['username'] ),
-			'profile_image'  => sanitize_text_field( $_POST['profile_image'] ?? '' ),
-			'gender'         => sanitize_text_field( $_POST['gender'] ?? '' ),
-			'degree'         => sanitize_text_field( $_POST['degree'] ?? '' ),
-			'specialization' => sanitize_text_field( $_POST['specialization'] ?? '' ),
-			'institution'    => sanitize_text_field( $_POST['institution'] ?? '' ),
-			'employer_name'  => sanitize_text_field( $_POST['employer_name'] ?? '' ),
-			'job_title'      => sanitize_text_field( $_POST['job_title'] ?? '' ),
-			'work_email'     => sanitize_email( $_POST['work_email'] ?? '' ),
+			'phone'          => $phone,
+			'address'        => sanitize_textarea_field( $_POST['address'] ?? '' ),
 		);
 
 		if ( ! empty( $_POST['password'] ) ) {
@@ -502,6 +505,7 @@ class Control_Ajax {
 		// Update Session Name
 		$_SESSION['control_user_first_name'] = $data['first_name'];
 		$_SESSION['control_user_last_name']  = $data['last_name'];
+		$_SESSION['control_phone']           = $data['phone'];
 
 		Control_Audit::log('profile_update', "User updated their own profile");
 		$this->send_success( __('تم تحديث الملف الشخصي بنجاح.', 'control') );
@@ -1343,7 +1347,7 @@ class Control_Ajax {
 			'status'  => 'pending'
 		) );
 
-		Control_Audit::log('place_order', "User {$current_user->id} placed a new order of $total SAR");
+		Control_Audit::log('place_order', "User {$current_user->id} placed a new order of $total EGP");
 		$this->send_success( __('تم استلام طلبك بنجاح وسوف يتم التواصل معك قريباً.', 'control') );
 	}
 

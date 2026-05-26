@@ -346,6 +346,11 @@ class Control_Database {
 				'content' => '[matjar_settings]',
 				'option'  => 'matjar_settings_page_id'
 			),
+			'product' => array(
+				'title'   => 'تفاصيل المنتج',
+				'content' => '[matjar_product]',
+				'option'  => 'matjar_product_page_id'
+			),
 		);
 
 		foreach ( $core_pages as $slug => $data ) {

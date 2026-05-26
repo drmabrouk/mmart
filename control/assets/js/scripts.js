@@ -1057,7 +1057,7 @@ jQuery(document).ready(function($) {
 
         if (count === 0) {
             $cartContainer.html('<p style="text-align: center; padding: 40px; color: var(--control-muted);">السلة فارغة حالياً</p>');
-            $('#cart-total').text('0 SAR');
+            $('#cart-total').text('0 EGP');
             $('#confirm-order-btn').prop('disabled', true);
             return;
         }
@@ -1073,7 +1073,7 @@ jQuery(document).ready(function($) {
                         <img src="${item.img}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
                         <div>
                             <div style="font-weight:700;">${item.name}</div>
-                            <div style="font-size:0.8rem; color:var(--control-accent); font-weight:800;">${item.price} SAR</div>
+                            <div style="font-size:0.8rem; color:var(--control-accent); font-weight:800;">${item.price} EGP</div>
                         </div>
                     </div>
                     <button class="remove-from-cart" data-index="${index}" style="background:none; border:none; color:#ef4444; cursor:pointer;">
@@ -1084,7 +1084,7 @@ jQuery(document).ready(function($) {
         });
         html += '</div>';
         $cartContainer.html(html);
-        $('#cart-total').text(total.toFixed(2) + ' SAR');
+        $('#cart-total').text(total.toFixed(2) + ' EGP');
         $('#confirm-order-btn').prop('disabled', false);
     }
 

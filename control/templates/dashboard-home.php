@@ -26,7 +26,7 @@ if ( Control_Auth::is_admin() ) {
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <div>
                     <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); font-weight: 600; margin-bottom:5px;"><?php _e('إجمالي الإيرادات', 'control'); ?></div>
-                    <div style="font-size: 1.8rem; font-weight: 800; color:var(--control-accent);"><?php echo number_format($revenue, 2); ?> <small style="font-size:0.9rem;">SAR</small></div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color:var(--control-accent);"><?php echo number_format($revenue, 2); ?> <small style="font-size:0.9rem;">EGP</small></div>
                 </div>
                 <div style="width: 45px; height: 45px; background: rgba(212,175,55,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--control-accent);">
                     <span class="dashicons dashicons-chart-area" style="font-size: 24px; width: 24px; height: 24px;"></span>
@@ -94,7 +94,7 @@ if ( Control_Auth::is_admin() ) {
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
                                         <td style="padding:15px 30px; font-weight:700;">#<?php echo $order->id; ?></td>
                                         <td style="padding:15px;">User ID: <?php echo esc_html($order->user_id); ?></td>
-                                        <td style="padding:15px; font-weight:800; color:var(--control-text-dark);"><?php echo number_format($order->total, 2); ?> <small>SAR</small></td>
+                                        <td style="padding:15px; font-weight:800; color:var(--control-text-dark);"><?php echo number_format($order->total, 2); ?> <small>EGP</small></td>
                                         <td style="padding:15px;">
                                             <span class="control-status-indicator <?php echo $order->status === 'pending' ? 'indicator-warning' : 'indicator-success'; ?>" style="font-size:0.65rem;">
                                                 <?php echo esc_html($order->status); ?>

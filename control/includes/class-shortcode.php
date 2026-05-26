@@ -11,6 +11,7 @@ class Control_Shortcode {
 		add_shortcode( 'matjar_cart', array( $this, 'render_cart' ) );
 		add_shortcode( 'matjar_orders', array( $this, 'render_orders' ) );
 		add_shortcode( 'matjar_settings', array( $this, 'render_settings' ) );
+		add_shortcode( 'matjar_product', array( $this, 'render_single_product' ) );
 		add_shortcode( 'control_policies', array( $this, 'render_policies' ) );
 	}
 
@@ -96,6 +97,12 @@ class Control_Shortcode {
 	public function render_settings() {
 		ob_start();
 		include CONTROL_PATH . 'templates/settings.php';
+		return ob_get_clean();
+	}
+
+	public function render_single_product() {
+		ob_start();
+		include CONTROL_PATH . 'templates/single-product.php';
 		return ob_get_clean();
 	}
 

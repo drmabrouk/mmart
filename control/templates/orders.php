@@ -27,7 +27,7 @@ $orders = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}matj
                             <tr style="border-bottom: 1px solid var(--control-border);">
                                 <td style="padding: 10px;">#<?php echo $order->id; ?></td>
                                 <td style="padding: 10px;"><?php echo date('Y/m/d', strtotime($order->created_at)); ?></td>
-                                <td style="padding: 10px; font-weight: 800; color: var(--control-accent);"><?php echo $order->total; ?> SAR</td>
+                                <td style="padding: 10px; font-weight: 800; color: var(--control-accent);"><?php echo $order->total; ?> EGP</td>
                                 <td style="padding: 10px;">
                                     <span class="control-status-indicator indicator-warning"><?php echo esc_html($order->status); ?></span>
                                 </td>
