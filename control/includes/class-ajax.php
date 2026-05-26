@@ -21,7 +21,7 @@ class Control_Ajax {
 			'verify_recovery_otp', 'reset_password_recovery',
 			'get_email_templates', 'preview_email', 'send_manual_email',
 			'save_product', 'delete_product', 'export_products', 'import_products',
-			'place_order'
+			'place_order', 'save_category', 'delete_category'
 		);
 
 		foreach ( $private_actions as $action ) {
@@ -1223,24 +1223,61 @@ class Control_Ajax {
 		$this->send_success( $html );
 	}
 
+	public function save_category() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+		if ( ! Control_Auth::is_admin() ) $this->send_error( 'Unauthorized', 403 );
+
+		global $wpdb;
+		$id = intval( $_POST['id'] ?? 0 );
+		$data = array(
+			'name'      => sanitize_text_field( $_POST['name'] ),
+			'parent_id' => intval( $_POST['parent_id'] ?? 0 ),
+		);
+
+		if ( $id ) {
+			$wpdb->update( $wpdb->prefix . 'matjar_categories', $data, array( 'id' => $id ) );
+		} else {
+			$wpdb->insert( $wpdb->prefix . 'matjar_categories', $data );
+		}
+		$this->send_success();
+	}
+
+	public function delete_category() {
+		check_ajax_referer( 'control_nonce', 'nonce' );
+		if ( ! Control_Auth::is_admin() ) $this->send_error( 'Unauthorized', 403 );
+
+		global $wpdb;
+		$id = intval( $_POST['id'] );
+		$wpdb->delete( $wpdb->prefix . 'matjar_categories', array( 'id' => $id ) );
+		$this->send_success();
+	}
+
 	public function save_product() {
 		check_ajax_referer( 'control_nonce', 'nonce' );
 		if ( ! current_user_can( 'manage_options' ) ) $this->send_error( 'Unauthorized', 403 );
 
 		global $wpdb;
 		$id = intval( $_POST['id'] ?? 0 );
+		$current_user = Control_Auth::current_user();
+
 		$data = array(
 			'name'        => sanitize_text_field( $_POST['name'] ),
 			'description' => sanitize_textarea_field( $_POST['description'] ),
 			'price'       => floatval( $_POST['price'] ),
 			'stock'       => intval( $_POST['stock'] ),
 			'image_url'   => sanitize_text_field( $_POST['image_url'] ),
-			'category'    => sanitize_text_field( $_POST['category'] ),
+			'category_id' => intval( $_POST['category_id'] ?? 0 ),
 		);
 
 		if ( $id ) {
+			// Ensure only admin or the product owner can edit
+			$owner_id = $wpdb->get_var( $wpdb->prepare( "SELECT vendor_id FROM {$wpdb->prefix}matjar_products WHERE id = %d", $id ) );
+			if ( ! Control_Auth::is_admin() && $owner_id != $current_user->id ) {
+				$this->send_error( 'Unauthorized' );
+			}
 			$wpdb->update( $wpdb->prefix . 'matjar_products', $data, array( 'id' => $id ) );
 		} else {
+			$data['vendor_id'] = $current_user->id;
 			$wpdb->insert( $wpdb->prefix . 'matjar_products', $data );
 		}
 
@@ -1344,8 +1381,24 @@ class Control_Ajax {
 			'user_id' => $current_user->id,
 			'items'   => json_encode($verified_items),
 			'total'   => $total,
-			'status'  => 'pending'
+			'status'  => 'pending',
+			'shipping_address' => sanitize_textarea_field( $_POST['shipping_address'] ?? '' )
 		) );
+
+		$order_id = $wpdb->insert_id;
+
+		foreach ( $verified_items as $item ) {
+			$product_id = intval($item['id']);
+			$vendor_id = $wpdb->get_var( $wpdb->prepare( "SELECT vendor_id FROM {$wpdb->prefix}matjar_products WHERE id = %d", $product_id ) );
+
+			$wpdb->insert( $wpdb->prefix . 'matjar_order_items', array(
+				'order_id'   => $order_id,
+				'product_id' => $product_id,
+				'vendor_id'  => $vendor_id ?: '1',
+				'price'      => floatval($item['price']),
+				'quantity'   => 1 // For now, simple 1 quantity per cart entry
+			) );
+		}
 
 		Control_Audit::log('place_order', "User {$current_user->id} placed a new order of $total EGP");
 		$this->send_success( __('تم استلام طلبك بنجاح وسوف يتم التواصل معك قريباً.', 'control') );

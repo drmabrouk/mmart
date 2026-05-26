@@ -854,6 +854,49 @@ body, .control-dashboard {
     transition: all 0.3s ease;
 }
 
+/* Vendor FABs */
+.vendor-fabs {
+    position: fixed;
+    right: 25px;
+    bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 999997;
+}
+
+.fab-item {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none !important;
+}
+
+.fab-item:hover {
+    transform: scale(1.1);
+}
+
+.fab-item.publisher { background: #3b82f6; }
+.fab-item.orders { background: #f59e0b; }
+.fab-item.analytics { background: #10b981; }
+
+@media (max-width: 1024px) {
+    .vendor-fabs {
+        right: 20px;
+        bottom: 110px;
+    }
+    .fab-item {
+        width: 45px;
+        height: 45px;
+    }
+}
+
 .matjar-floating-nav .nav-item {
     color: #94a3b8;
     text-decoration: none;

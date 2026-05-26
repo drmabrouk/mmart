@@ -132,6 +132,21 @@
         </a>
     </div>
 
+    <?php if ( Control_Auth::is_logged_in() && ! Control_Auth::is_admin() && Control_Auth::current_user()->role === 'vendor' ) : ?>
+    <!-- Vendor Floating Action Buttons (FABs) -->
+    <div class="vendor-fabs">
+        <a href="<?php echo add_query_arg('control_view', 'products', get_permalink(get_option('matjar_dashboard_page_id'))); ?>" class="fab-item publisher" title="<?php _e('ناشر المنتجات', 'control'); ?>">
+            <span class="dashicons dashicons-plus"></span>
+        </a>
+        <a href="<?php echo add_query_arg('control_view', 'order-reception', get_permalink(get_option('matjar_dashboard_page_id'))); ?>" class="fab-item orders" title="<?php _e('إدارة الطلبات', 'control'); ?>">
+            <span class="dashicons dashicons-cart"></span>
+        </a>
+        <a href="<?php echo add_query_arg('control_view', 'vendor-analytics', get_permalink(get_option('matjar_dashboard_page_id'))); ?>" class="fab-item analytics" title="<?php _e('التحليلات المالية', 'control'); ?>">
+            <span class="dashicons dashicons-chart-bar"></span>
+        </a>
+    </div>
+    <?php endif; ?>
+
     <div id="control-sync-loader" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#000000; color:#fff; padding:10px 20px; border-radius:30px; z-index:10000; box-shadow:0 4px 12px rgba(0,0,0,0.2); font-weight:600;">
         <span class="dashicons dashicons-update spin" style="margin-left:8px; vertical-align:middle;"></span>
         <span class="loader-text"><?php _e('جارٍ تحميل البيانات...', 'control'); ?></span>

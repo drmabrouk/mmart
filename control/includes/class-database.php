@@ -19,6 +19,7 @@ class Control_Database {
 		$table_otps         = $wpdb->prefix . 'control_otps';
 		$table_reset_tokens = $wpdb->prefix . 'control_reset_tokens';
 		$table_products     = $wpdb->prefix . 'matjar_products';
+		$table_categories   = $wpdb->prefix . 'matjar_categories';
 
 		$sql = "CREATE TABLE $table_staff (
 			id mediumint(9) NOT NULL AUTO_INCREMENT,
@@ -132,8 +133,18 @@ class Control_Database {
 			KEY token (token)
 		) $charset_collate;
 
+		CREATE TABLE $table_categories (
+			id bigint(20) NOT NULL AUTO_INCREMENT,
+			name varchar(255) NOT NULL,
+			parent_id bigint(20) DEFAULT 0,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id)
+		) $charset_collate;
+
 		CREATE TABLE $table_products (
 			id bigint(20) NOT NULL AUTO_INCREMENT,
+			vendor_id varchar(100) NOT NULL,
+			category_id bigint(20) DEFAULT 0,
 			name varchar(255) NOT NULL,
 			description text,
 			price decimal(10,2) NOT NULL,
@@ -151,7 +162,20 @@ class Control_Database {
 			items longtext NOT NULL,
 			total decimal(10,2) NOT NULL,
 			status varchar(50) DEFAULT 'pending',
+			payment_status varchar(50) DEFAULT 'unpaid',
+			shipping_address text,
 			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id)
+		) $charset_collate;
+
+		$table_order_items = $wpdb->prefix . 'matjar_order_items';
+		CREATE TABLE $table_order_items (
+			id bigint(20) NOT NULL AUTO_INCREMENT,
+			order_id bigint(20) NOT NULL,
+			product_id bigint(20) NOT NULL,
+			vendor_id varchar(100) NOT NULL,
+			price decimal(10,2) NOT NULL,
+			quantity int(11) NOT NULL,
 			PRIMARY KEY  (id)
 		) $charset_collate;";
 
@@ -281,6 +305,7 @@ class Control_Database {
 		if ($product_count == 0) {
 			$dummy_products = array(
 				array(
+					'vendor_id' => '1',
 					'name' => 'Premium Cotton T-Shirt',
 					'description' => 'High-quality Egyptian cotton t-shirt for maximum comfort.',
 					'price' => 350.00,
@@ -289,6 +314,7 @@ class Control_Database {
 					'category' => 'Apparel'
 				),
 				array(
+					'vendor_id' => '1',
 					'name' => 'Leather Messenger Bag',
 					'description' => 'Handcrafted genuine leather bag for daily essentials.',
 					'price' => 1250.00,
@@ -297,6 +323,7 @@ class Control_Database {
 					'category' => 'Accessories'
 				),
 				array(
+					'vendor_id' => '1',
 					'name' => 'Minimalist Wall Clock',
 					'description' => 'Modern design wall clock with silent mechanism.',
 					'price' => 450.00,
@@ -305,6 +332,7 @@ class Control_Database {
 					'category' => 'Home Decor'
 				),
 				array(
+					'vendor_id' => '1',
 					'name' => 'Wireless Noise-Cancelling Headphones',
 					'description' => 'Experience pure sound with our latest noise-cancelling technology.',
 					'price' => 2800.00,
