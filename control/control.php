@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Control
+ * Plugin Name: Matjar
  * Description: Professional system for administrative and user management.
  * Version: 2.3.0
- * Author: Control Team
+ * Author: Matjar Team
  * Text Domain: control
  * Domain Path: /languages
  * Requires at least: 6.0
@@ -71,6 +71,7 @@ class Control_System {
 
 	private function init_hooks() {
 		register_activation_hook( __FILE__, array( 'Control_Database', 'create_tables' ) );
+		register_activation_hook( __FILE__, array( 'Control_Database', 'create_dashboard_page' ) );
 		add_action( 'init', array( 'Control_Auth', 'init' ) );
 		add_action( 'init', array( 'Control_Notifications', 'init' ) );
 		add_action( 'init', array( 'Control_PWA', 'init' ) );

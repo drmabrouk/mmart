@@ -151,7 +151,7 @@
         <div id="control-install-banner" style="display:none; background:#D4AF37; color:#000; padding:15px 25px; border-radius:12px; margin-bottom:25px; align-items:center; justify-content:space-between; font-weight:700; box-shadow:0 4px 12px rgba(212,175,55,0.3);">
             <div style="display:flex; align-items:center; gap:15px;">
                 <span class="dashicons dashicons-smartphone" style="font-size:24px; width:24px; height:24px;"></span>
-                <span><?php _e('تثبيت تطبيق كنترول على هاتفك للوصول السريع', 'control'); ?></span>
+                <span><?php _e('تثبيت تطبيق متجر على هاتفك للوصول السريع', 'control'); ?></span>
             </div>
             <button onclick="window.controlInstallPrompt.prompt()" class="control-btn" style="background:#000; border:none; padding:8px 20px; font-size:0.85rem;"><?php _e('تثبيت الآن', 'control'); ?></button>
         </div>

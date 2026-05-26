@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Control_Shortcode {
 
 	public function __construct() {
-		add_shortcode( 'control_system', array( $this, 'render_dashboard' ) );
+		add_shortcode( 'matjar_dashboard', array( $this, 'render_dashboard' ) );
 		add_shortcode( 'control_policies', array( $this, 'render_policies' ) );
 	}
 
@@ -29,7 +29,7 @@ class Control_Shortcode {
 			<div style="width:100px; height:100px; background:#fef2f2; color:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 30px;">
 				<span class="dashicons dashicons-shield-lock" style="font-size:50px; width:50px; height:50px;"></span>
 			</div>
-			<h2 style="font-weight:800; color:#1e293b; margin-bottom:15px;">' . __( 'مرحباً بك في نظام كنترول', 'control' ) . '</h2>
+			<h2 style="font-weight:800; color:#1e293b; margin-bottom:15px;">' . __( 'مرحباً بك في نظام متجر', 'control' ) . '</h2>
 			<p style="color:#64748b; font-size:1.1rem; line-height:1.6; margin-bottom:30px;">' . __( 'ليس لديك الصلاحيات الكافية للوصول إلى لوحة التحكم حالياً.', 'control' ) . '</p>
 			<div style="padding:15px; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1; color:#475569; font-size:0.9rem;">
 				' . __( 'برجاء التواصل مع إدارة النظام أو الدعم الفني لطلب تفعيل صلاحيات الوصول الخاصة بحسابك.', 'control' ) . '

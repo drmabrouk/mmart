@@ -199,10 +199,10 @@ class Control_Database {
 		// Default settings
 		$defaults = array(
 			'fullscreen_password' => '123456789',
-			'system_name'         => 'Control',
-			'company_name'        => 'Control',
-			'pwa_app_name'        => 'Control',
-			'pwa_short_name'      => 'Control',
+			'system_name'         => 'Matjar',
+			'company_name'        => 'Matjar',
+			'pwa_app_name'        => 'Matjar',
+			'pwa_short_name'      => 'Matjar',
 			'pwa_theme_color'     => '#000000',
 			'pwa_bg_color'        => '#ffffff',
 			'smtp_host'           => '',
@@ -210,7 +210,7 @@ class Control_Database {
 			'smtp_user'           => '',
 			'smtp_pass'           => '',
 			'smtp_encryption'     => 'tls',
-			'sender_name'         => 'Control System',
+			'sender_name'         => 'Matjar System',
 			'sender_email'        => get_option('admin_email'),
 			'email_theme'         => 'modern',
 			'auth_registration_enabled'      => '1',
@@ -315,6 +315,45 @@ class Control_Database {
 					'content'      => $tpl['content']
 				) );
 			}
+		}
+	}
+
+	public static function create_dashboard_page() {
+		$page_id = get_option( 'matjar_dashboard_page_id' );
+
+		if ( $page_id ) {
+			$page = get_post( $page_id );
+			if ( $page && $page->post_status !== 'trash' ) {
+				return;
+			}
+		}
+
+		// Check if a page with the shortcode already exists
+		$existing_pages = get_posts( array(
+			'post_type'   => 'page',
+			'post_status' => 'any',
+			's'           => '[matjar_dashboard]',
+		) );
+
+		foreach ( $existing_pages as $post ) {
+			if ( stripos( $post->post_content, '[matjar_dashboard]' ) !== false ) {
+				update_option( 'matjar_dashboard_page_id', $post->ID );
+				return;
+			}
+		}
+
+		$page_data = array(
+			'post_title'    => 'لوحة التحكم',
+			'post_content'  => '[matjar_dashboard]',
+			'post_status'   => 'publish',
+			'post_type'     => 'page',
+			'post_author'   => 1,
+		);
+
+		$new_page_id = wp_insert_post( $page_data );
+
+		if ( $new_page_id && ! is_wp_error( $new_page_id ) ) {
+			update_option( 'matjar_dashboard_page_id', $new_page_id );
 		}
 	}
 }
